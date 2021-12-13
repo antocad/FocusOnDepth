@@ -1,0 +1,2 @@
+datasets/*
+DPT/weights/*.pt
