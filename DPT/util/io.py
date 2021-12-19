@@ -175,7 +175,7 @@ def write_depth(path, depth, bits=1, absolute_depth=False):
         path (str): filepath without extension
         depth (array): depth
     """
-    write_pfm(path + ".pfm", depth.astype(np.float32))
+    #write_pfm(path + ".pfm", depth.astype(np.float32))
 
     if absolute_depth:
         out = depth
@@ -191,9 +191,9 @@ def write_depth(path, depth, bits=1, absolute_depth=False):
             out = np.zeros(depth.shape, dtype=depth.dtype)
 
     if bits == 1:
-        cv2.imwrite(path + ".png", out.astype("uint8"), [cv2.IMWRITE_PNG_COMPRESSION, 0])
+        cv2.imwrite('.'.join(path.split('.')[:-1]) + ".png", out.astype("uint8"), [cv2.IMWRITE_PNG_COMPRESSION, 0])
     elif bits == 2:
-        cv2.imwrite(path + ".png", out.astype("uint16"), [cv2.IMWRITE_PNG_COMPRESSION, 0])
+        cv2.imwrite('.'.join(path.split('.')[:-1]) + ".png", out.astype("uint16"), [cv2.IMWRITE_PNG_COMPRESSION, 0])
 
     return
 
@@ -215,7 +215,7 @@ def write_segm_img(path, image, labels, palette="detail", alpha=0.5):
 
     out = Image.blend(img, seg, alpha)
 
-    out.save(path + ".png")
-    seg.save(path + "_seg.png")
+    #out.save(path + ".png")
+    seg.save('.'.join(path.split('.')[:-1]) + "_seg.png")
 
     return
