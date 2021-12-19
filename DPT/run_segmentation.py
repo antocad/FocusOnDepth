@@ -87,7 +87,7 @@ def run(input_path, output_path, model_path, model_type="dpt_hybrid", optimize=T
         print("  processing {} ({}/{})".format(img_name, ind + 1, num_images))
 
         # input
-        img = util.io.read_image(img_name)
+        img = DPT.util.io.read_image(img_name)
         img_input = transform({"image": img})["image"]
 
         # compute
@@ -109,7 +109,7 @@ def run(input_path, output_path, model_path, model_type="dpt_hybrid", optimize=T
         filename = os.path.join(
             output_path, os.path.splitext(os.path.basename(img_name))[0]
         )
-        util.io.write_segm_img(filename, img, prediction, alpha=0.5)
+        DPT.util.io.write_segm_img(filename, img, prediction, alpha=0.5)
 
     print("finished")
 
