@@ -8,7 +8,7 @@ import argparse
 import torch
 import torch.nn.functional as F
 
-import util.io
+import DPT.util.io
 
 from torchvision.transforms import Compose
 from dpt.models import DPTSegmentationModel
