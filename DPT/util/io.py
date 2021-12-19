@@ -8,6 +8,8 @@ import torch
 
 from PIL import Image
 
+import matplotlib.pyplot as plt
+import numpy as np
 
 from .pallete import get_mask_pallete
 
@@ -213,9 +215,10 @@ def write_segm_img(path, image, labels, palette="detail", alpha=0.5):
     img = Image.fromarray(np.uint8(255*image)).convert("RGBA")
     seg = mask.convert("RGBA")
 
-    out = Image.blend(img, seg, alpha)
-
-    #out.save(path + ".png")
+    plt.imshow(seg)
+    plt.show()
     seg.save('.'.join(path.split('.')[:-1]) + "_seg.png")
 
+    #out = Image.blend(img, seg, alpha)
+    #out.save(path + ".png")
     return

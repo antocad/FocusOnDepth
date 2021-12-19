@@ -4,6 +4,9 @@ import os
 import glob
 import cv2
 import argparse
+import matplotlib.pyplot as plt
+import numpy as np
+from tqdm import tqdm
 
 import torch
 import torch.nn.functional as F
@@ -82,13 +85,16 @@ def run(input_path, output_path, model_path, model_type="dpt_hybrid", optimize=T
 
     print("start processing")
 
-    for ind, img_name in enumerate(img_names):
+    for ind, img_name in tqdm(enumerate(img_names)):
 
-        print("  processing {} ({}/{})".format(img_name, ind + 1, num_images))
+        #print("  processing {} ({}/{})".format(img_name, ind + 1, num_images))
 
         # input
         img = DPT.util.io.read_image(img_name)
         img_input = transform({"image": img})["image"]
+
+        plt.imshow(np.transpose(img_input, (1, 2, 0)))
+        plt.show()
 
         # compute
         with torch.no_grad():
@@ -104,13 +110,14 @@ def run(input_path, output_path, model_path, model_type="dpt_hybrid", optimize=T
             )
             prediction = torch.argmax(prediction, dim=1) + 1
             prediction = prediction.squeeze().cpu().numpy()
+            
 
         # output
         filename = os.path.join(
             output_path, os.path.splitext(os.path.basename(img_name))[0]
         )
         DPT.util.io.write_segm_img(filename, img, prediction, alpha=0.5)
-
+        break
     print("finished")
 
 
