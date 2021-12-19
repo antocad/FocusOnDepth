@@ -87,7 +87,7 @@ def run(input_path, output_path, model_path, model_type="dpt_hybrid", optimize=T
         print("  processing {} ({}/{})".format(img_name, ind + 1, num_images))
 
         # input
-        img = util.io.read_image(img_name)
+        img = DPT.util.io.read_image(img_name)
         img_input = transform({"image": img})["image"]
 
         # compute
