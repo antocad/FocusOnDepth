@@ -1,2 +1,4 @@
 datasets/*
 DPT/weights/*.pt
+.ipynb_checkpoints/
+*.pyc
