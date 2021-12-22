@@ -1,0 +1,38 @@
+{
+    "General":{
+        "device":"cpu",
+        "seed":0,
+        "epochs":5,
+        "batch_size":1,
+        "lr":0.001,
+        "optim":"adam",
+        "loss":"mse",
+        "momentum":0.9,
+        "patch_size":16,
+        "emb_dim":512,
+        "read":"projection",
+        "resample_dim":256,
+        "nhead":8
+    },
+    "Dataset":{
+        "paths":{
+            "path_images":"./datasets/train/inputs",
+            "path_segmentation":"./datasets/train/segmentation",
+            "path_depth":"./datasets/train/depth"
+        },
+        "extensions":{
+            "ext_images":".jpg",
+            "ext_segmentation":".jpg",
+            "ext_depth":".jpg"
+        },
+        "splits":{
+            "split_train":0.7,
+            "split_val":0.2,
+            "split_test":0.1
+        },
+        "transforms":{
+            "resize":384
+        }
+    }
+
+}
