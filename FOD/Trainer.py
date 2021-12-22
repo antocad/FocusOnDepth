@@ -42,7 +42,7 @@ class Trainer(object):
                 # forward + backward + optimizer
                 outputs_depth = self.model(x)
 
-                print(i, x.max(), y_depth.max(), outputs_depth.max())
+                #print(i, x.max(), y_depth.max(), outputs_depth.max())
                 #print(outputs_depth.sum())
                 
                 # get loss
@@ -59,7 +59,7 @@ class Trainer(object):
                 #plt.show()
                 #plt.imshow(outputs_depth[0].squeeze().detach().numpy())
                 #plt.show()
-                break
+                #break
             
             print('epoch {} : loss = '.format(epoch+1), running_loss)
 
