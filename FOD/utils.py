@@ -28,8 +28,8 @@ def get_splitted_dataset(config, split, path_images, path_depths, path_segmentat
 
 def get_transforms(config):
     #transform_image = transforms.Compose([transforms.Resize((config['Dataset']['transforms']['resize'],config['Dataset']['transforms']['resize'])), transforms.ToTensor(), transforms.Normalize((0.485, 0.456, 0.406), (0.229, 0.224, 0.225))])
-    transform_image = transforms.Compose([transforms.Resize((config['Dataset']['transforms']['resize'],config['Dataset']['transforms']['resize'])), transforms.ToTensor(), transforms.NormalizeImage(mean=[0.5, 0.5, 0.5], std=[0.5, 0.5, 0.5])])
-    transform_depth = transforms.Compose([transforms.Resize((config['Dataset']['transforms']['resize'],config['Dataset']['transforms']['resize'])), transforms.ToTensor(), transforms.NormalizeImage(mean=[0.5, 0.5, 0.5], std=[0.5, 0.5, 0.5])])
+    transform_image = transforms.Compose([transforms.Resize((config['Dataset']['transforms']['resize'],config['Dataset']['transforms']['resize'])), transforms.ToTensor(), transforms.Normalize(mean=[0.5, 0.5, 0.5], std=[0.5, 0.5, 0.5])])
+    transform_depth = transforms.Compose([transforms.Resize((config['Dataset']['transforms']['resize'],config['Dataset']['transforms']['resize'])), transforms.ToTensor(), transforms.Normalize(mean=[0.5, 0.5, 0.5], std=[0.5, 0.5, 0.5])])
     transform_seg = None
     return transform_image, transform_depth,transform_seg
 
