@@ -18,7 +18,8 @@
         "paths":{
             "path_images":"./datasets/train/inputs",
             "path_segmentation":"./datasets/train/segmentation",
-            "path_depth":"./datasets/train/depth"
+            "path_depth":"./datasets/train/depth",
+            "model_dpt":"."
         },
         "extensions":{
             "ext_images":".jpg",
