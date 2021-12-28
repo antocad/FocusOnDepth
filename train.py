@@ -14,7 +14,7 @@ train_data = AutoFocusDataset(config, 'train')
 train_dataloader = DataLoader(train_data, batch_size=config['General']['batch_size'], shuffle=True)
 
 val_data = AutoFocusDataset(config, 'val')
-val_dataloader = DataLoader(val_data, batch_size=config['General']['batch_size'])
+val_dataloader = DataLoader(val_data, batch_size=config['General']['batch_size'], shuffle=True)
 
 trainer = Trainer(config)
 trainer.train(train_dataloader, val_dataloader)

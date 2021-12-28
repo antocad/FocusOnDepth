@@ -1,6 +1,9 @@
+from os import replace
 import torch
 import matplotlib.pyplot as plt
 import numpy as np
+import wandb
+import cv2
 from tqdm import tqdm
 
 from FOD.utils import get_loss, get_optimizer
@@ -30,6 +33,13 @@ class Trainer(object):
 
     def train(self, train_dataloader, val_dataloader):
         epochs = self.config['General']['epochs']
+        if self.config['wandb']['enable']:
+            wandb.init(project="FocusOnDepth", entity=self.config['wandb']['username'])
+            wandb.config = {
+                "learning_rate": self.config['General']['lr'],
+                "epochs": epochs,
+                "batch_size": self.config['General']['batch_size']
+            }
         for epoch in range(epochs):  # loop over the dataset multiple times
             running_loss = 0.0
             self.model.train()
@@ -67,14 +77,48 @@ class Trainer(object):
                 self.optimizer.step()
                 running_loss += loss.item()
 
-                #plt.imshow(x[0].permute(1,2,0).detach().numpy())
-                #plt.show()
-                #plt.imshow(y_depth[0].squeeze().detach().numpy())
-                #plt.show()
-                #plt.imshow(outputs_depth[0].squeeze().detach().numpy())
-                #plt.show()
-                #break
+                if self.config['wandb']['enable']:
+                    wandb.log({"loss": loss.item()})
 
-            print('epoch {} : loss = '.format(epoch+1), running_loss)
-
+                if i%50 == 0:
+                    print('epoch {} : loss = '.format(epoch+1), running_loss/(50*self.config['General']['batch_size']))
+                    running_loss = 0
+            self.run_eval(train_dataloader, val_dataloader)
         print('Finished Training')
+
+    def run_eval(self, train_dataloader, val_dataloader):
+        """
+            Evaluate the model on the validation set and visualize some results
+            on wandb
+            :- train_dataloader -: torch dataloader
+            :- val_dataloader -: torch dataloader
+        """
+        self.model.eval()
+        val_loss = 0.
+        validation_samples = ()
+        with torch.no_grad():
+            for i, (x, y_depth) in tqdm(enumerate(val_dataloader)):
+                outputs_depth = self.model(x)
+                # get loss
+                if self.config['General']['loss'] == 'ssi':
+                    outputs_depth = outputs_depth.squeeze(1)
+                    y_depth = y_depth.squeeze(1)
+                    mask = y_depth > 0
+                    loss = self.loss(outputs_depth, y_depth, mask)
+                else:
+                    loss = self.loss(outputs_depth, y_depth)
+                val_loss += loss.item()
+                if len(validation_samples) < self.config['wandb']['images_to_show']:
+                    validation_samples = (*validation_samples, x[0, :, :, :].unsqueeze(0))
+            val_loss = val_loss / len(val_dataloader)
+            print('val_loss = ', val_loss)
+            if self.config['wandb']['enable']:
+                wandb.log({"val_loss": val_loss})
+                val_predictions = self.model(torch.cat(validation_samples, dim=0)).detach().cpu().numpy()
+                val_predictions = np.concatenate((torch.cat(validation_samples, dim=0).detach().cpu().numpy(), np.repeat(val_predictions, 3, axis=1)), axis=-2).transpose(0,2,3,1)
+                output_dim = (2*int(self.config['wandb']['im_h']), int(self.config['wandb']['im_w']))
+                wandb.log({"img": [wandb.Image(cv2.resize(im, output_dim), caption='val_pred{}'.format(i+1)) for i, im in enumerate(val_predictions)]})
+
+
+
+

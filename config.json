@@ -2,8 +2,8 @@
     "General":{
         "device":"cpu",
         "seed":0,
-        "epochs":5,
-        "batch_size":4,
+        "epochs":1,
+        "batch_size":2,
         "lr":0.0004,
         "optim":"adam",
         "loss":"ssi",
@@ -33,6 +33,13 @@
         "transforms":{
             "resize":384
         }
+    },
+    "wandb":{
+        "enable":true,
+        "username":"younesbelkada",
+        "images_to_show":3,
+        "im_h":540,
+        "im_w":980
     }
 
 }
