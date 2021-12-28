@@ -52,11 +52,11 @@ class Trainer(object):
                     outputs_depth = outputs_depth.squeeze(1)
                     y_depth = y_depth.squeeze(1)
                     mask = y_depth > 0
-                    y_depth[mask] = (y_depth[mask] - y_depth[mask].min()) / \
-                                    (y_depth[mask].max() - y_depth[mask].min())
-
-                    y_depth[mask] = 10. / y_depth[mask]
-                    y_depth[~mask] = 0.
+                    # y_depth[mask] = (y_depth[mask] - y_depth[mask].min()) / \
+                    #                 (y_depth[mask].max() - y_depth[mask].min())
+                    #
+                    # y_depth[mask] = 10. / y_depth[mask]
+                    # y_depth[~mask] = 0.
 
                     loss = self.loss(outputs_depth, y_depth, mask)
                 else:

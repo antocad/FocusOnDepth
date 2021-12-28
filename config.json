@@ -3,16 +3,16 @@
         "device":"cpu",
         "seed":0,
         "epochs":5,
-        "batch_size":8,
+        "batch_size":4,
         "lr":0.0004,
         "optim":"adam",
         "loss":"ssi",
         "momentum":0.9,
         "patch_size":16,
-        "emb_dim":1024,
+        "emb_dim":256,
         "read":"projection",
-        "resample_dim":256,
-        "nhead":8
+        "resample_dim":128,
+        "nhead":4
     },
     "Dataset":{
         "paths":{
