@@ -22,21 +22,21 @@ class Trainer(object):
         self.device = torch.device(self.config['General']['device'] if torch.cuda.is_available() else "cpu")
         print("device: %s" % self.device)
 
-        # self.model = FocusOnDepth(
-        #             (3,config['Dataset']['transforms']['resize'],config['Dataset']['transforms']['resize']),
-        #             patch_size=config['General']['patch_size'],
-        #             emb_dim=config['General']['emb_dim'],
-        #             resample_dim=config['General']['resample_dim'],
-        #             read=config['General']['read'],
-        #             nhead=config['General']['nhead']
-        # )
-
-        self.model = DPTDepthModel(
-            path=config['Dataset']['paths']['model_dpt'],
-            backbone="vitl16_384",
-            non_negative=True,
-            enable_attention_hooks=False,
+        self.model = FocusOnDepth(
+                    (3,config['Dataset']['transforms']['resize'],config['Dataset']['transforms']['resize']),
+                    patch_size=config['General']['patch_size'],
+                    emb_dim=config['General']['emb_dim'],
+                    resample_dim=config['General']['resample_dim'],
+                    read=config['General']['read'],
+                    nhead=config['General']['nhead']
         )
+
+        # self.model = DPTDepthModel(
+        #     path=config['Dataset']['paths']['model_dpt'],
+        #     backbone="vitl16_384",
+        #     non_negative=True,
+        #     enable_attention_hooks=False,
+        # )
         
         self.model.half()
         self.model.to(self.device)
