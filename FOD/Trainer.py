@@ -98,6 +98,7 @@ class Trainer(object):
         validation_samples = ()
         with torch.no_grad():
             for i, (x, y_depth) in tqdm(enumerate(val_dataloader)):
+                x, y_depth = x.to(self.device), y_depth.to(self.device)
                 outputs_depth = self.model(x)
                 # get loss
                 if self.config['General']['loss'] == 'ssi':
