@@ -37,7 +37,8 @@ class Trainer(object):
             non_negative=True,
             enable_attention_hooks=False,
         )
-
+        
+        self.model.half()
         self.model.to(self.device)
 
         self.loss = get_loss(config)
