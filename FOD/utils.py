@@ -6,6 +6,7 @@ import torch.optim as optim
 from glob import glob
 from torchvision import transforms, utils
 
+from FOD.Loss import ScaleAndShiftInvariantLoss
 
 def get_total_paths(path, ext):
     return glob(os.path.join(path, '*'+ext))
@@ -35,6 +36,8 @@ def get_transforms(config):
 def get_loss(config):
     if config['General']['loss'] == 'mse':
         return nn.MSELoss()
+    elif config['General']['loss'] == 'ssi':
+        return ScaleAndShiftInvariantLoss()
     else:
         return None
 
