@@ -115,7 +115,8 @@ class Trainer(object):
             print('val_loss = ', val_loss)
             if self.config['wandb']['enable']:
                 wandb.log({"val_loss": val_loss})
-                val_predictions = self.model(torch.cat(validation_samples, dim=0)).detach().cpu().numpy()
+                val_predictions = 255*self.model(torch.cat(validation_samples, dim=0)).detach().cpu().numpy()
+
                 val_predictions = np.concatenate((torch.cat(validation_samples, dim=0).detach().cpu().numpy(), np.repeat(val_predictions, 3, axis=1)), axis=-2).transpose(0,2,3,1)
                 output_dim = (2*int(self.config['wandb']['im_h']), int(self.config['wandb']['im_w']))
                 wandb.log({"img": [wandb.Image(cv2.resize(255*im, output_dim), caption='val_pred{}'.format(i+1)) for i, im in enumerate(val_predictions)]})
