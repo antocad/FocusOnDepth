@@ -33,6 +33,4 @@ class HeadDepth(nn.Module):
     def forward(self, x):
         x = self.head(x)
         x[x < 1e-8] = 1e-8
-        x = 1.0 / x
-        #    return depth
-        return x
+        return 1.0 / x
