@@ -38,7 +38,7 @@ class Trainer(object):
         #     enable_attention_hooks=False,
         # )
         
-        self.model.half()
+        #self.model.half()
         self.model.to(self.device)
 
         self.loss = get_loss(config)
@@ -58,7 +58,8 @@ class Trainer(object):
             self.model.train()
             for i, (x, y_depth) in tqdm(enumerate(train_dataloader)):
                 # get the inputs; data is a list of [inputs, labels]
-                x, y_depth = x.to(self.device).half(), y_depth.to(self.device).half()
+                #x, y_depth = x.to(self.device).half(), y_depth.to(self.device).half()
+                x, y_depth = x.to(self.device), y_depth.to(self.device)
 
                 # zero the parameter gradients
                 self.optimizer.zero_grad()
@@ -111,8 +112,8 @@ class Trainer(object):
         validation_samples = ()
         with torch.no_grad():
             for i, (x, y_depth) in tqdm(enumerate(val_dataloader)):
-                #x, y_depth = x.to(self.device), y_depth.to(self.device)
-                x, y_depth = x.to(self.device).half(), y_depth.to(self.device).half()
+                x, y_depth = x.to(self.device), y_depth.to(self.device)
+                #x, y_depth = x.to(self.device).half(), y_depth.to(self.device).half()
                 outputs_depth = self.model(x)
                 # get loss
                 if self.config['General']['loss'] == 'ssi':
