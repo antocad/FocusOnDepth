@@ -22,15 +22,13 @@ class HeadDepth(nn.Module):
     def __init__(self, features):
         super(HeadDepth, self).__init__()
         self.head = nn.Sequential(
-                nn.Conv2d(features, features // 2, kernel_size=3, stride=1, padding=1),
-                Interpolate(scale_factor=2, mode="bilinear", align_corners=True),
-                nn.Conv2d(features // 2, 32, kernel_size=3, stride=1, padding=1),
-                nn.ReLU(inplace=False),
-                nn.Conv2d(32, 1, kernel_size=1, stride=1, padding=0),
-                nn.ReLU(inplace=False),
-                nn.Identity(),
-            )
+            nn.Conv2d(features, features // 2, kernel_size=3, stride=1, padding=1),
+            Interpolate(scale_factor=2, mode="bilinear", align_corners=True),
+            nn.Conv2d(features // 2, 32, kernel_size=3, stride=1, padding=1),
+            nn.ReLU(),
+            nn.Conv2d(32, 1, kernel_size=1, stride=1, padding=0),
+            nn.ReLU()
+        )
     def forward(self, x):
         x = self.head(x)
-        x[x < 1e-8] = 1e-8
-        return 1.0 / x
+        return x

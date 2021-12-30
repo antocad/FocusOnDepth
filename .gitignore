@@ -3,3 +3,4 @@ DPT/weights/*.pt
 .ipynb_checkpoints/
 *.pyc
 *.pyc
+wandb/*

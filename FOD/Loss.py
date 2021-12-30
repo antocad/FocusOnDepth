@@ -122,8 +122,28 @@ class ScaleAndShiftInvariantLoss(nn.Module):
 
         self.__prediction_ssi = None
 
-    def forward(self, prediction, target, mask):
+    def forward(self, prediction, target, printable=False):
+        #preprocessing
+        prediction = prediction.clone()
+        target = target.clone()
 
+        mask = target > 0
+        target[mask] = (target[mask] - target[mask].min()) / (target[mask].max() - target[mask].min()) * 9 + 1
+        target[mask] = 10. / target[mask]
+        target[~mask] = 0.
+
+        # mask2 = prediction > 0
+        # prediction[mask2] = (prediction[mask2] - prediction[mask2].min()) / (prediction[mask2].max() - prediction[mask2].min()) * 9 + 1
+        # prediction[mask2] = 10. / prediction[mask2]
+        # prediction[~mask2] = 0.
+
+        if printable:
+            print("******************************************************")
+            print(target.shape, target.mean(), target.max(), target.min())
+            print(prediction.shape, prediction.mean(), prediction.max(), prediction.min())
+            print("******************************************************")
+
+        #calcul
         scale, shift = compute_scale_and_shift(prediction, target, mask)
         self.__prediction_ssi = scale.view(-1, 1, 1) * prediction + shift.view(-1, 1, 1)
 
