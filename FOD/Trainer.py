@@ -40,8 +40,8 @@ class Trainer(object):
 
         #self.model.half()
         self.model.to(self.device)
-        # print(self.model)
-        # exit(0)
+        #print(self.model)
+        #exit(0)
 
         self.loss = get_loss(config)
         self.optimizer = get_optimizer(config, self.model)

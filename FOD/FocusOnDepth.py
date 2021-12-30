@@ -1,6 +1,7 @@
 import numpy as np
 import torch
 import torch.nn as nn
+import timm
 from einops import rearrange, repeat
 from einops.layers.torch import Rearrange
 
@@ -44,12 +45,18 @@ class FocusOnDepth(nn.Module):
         self.pos_embedding = nn.Parameter(torch.randn(1, num_patches + 1, emb_dim))
 
         #Transformer
+        """
         encoder_layer = nn.TransformerEncoderLayer(d_model=emb_dim, nhead=nhead, dropout=transformer_dropout, dim_feedforward=emb_dim*4)
         self.transformer_encoders = nn.TransformerEncoder(encoder_layer, num_layers=num_layers_encoder)
         #Register hooks
         self.activation = {}
         self.hooks = hooks
+        self._get_layers_from_hooks(self.hooks)"""
+        self.transformer_encoders = timm.create_model("vit_large_patch16_384", pretrained=True)
+        self.activation = {}
+        self.hooks = hooks
         self._get_layers_from_hooks(self.hooks)
+
 
         #Reassembles Fusion
         self.reassembles = []
@@ -64,12 +71,14 @@ class FocusOnDepth(nn.Module):
         self.head = HeadDepth(resample_dim)
 
     def forward(self, img):
-        x = self.to_patch_embedding(img)
-        b, n, _ = x.shape
-        cls_tokens = repeat(self.cls_token, '() n d -> b n d', b = b)
-        x = torch.cat((cls_tokens, x), dim=1)
-        x += self.pos_embedding[:, :(n + 1)]
-        t = self.transformer_encoders(x)
+        # x = self.to_patch_embedding(img)
+        # b, n, _ = x.shape
+        # cls_tokens = repeat(self.cls_token, '() n d -> b n d', b = b)
+        # x = torch.cat((cls_tokens, x), dim=1)
+        # x += self.pos_embedding[:, :(n + 1)]
+        # t = self.transformer_encoders(x)
+        
+        t = self.transformer_encoders(img)
         previous_stage = None
         for i in np.arange(len(self.fusions)-1, -1, -1):
             hook_to_take = 't'+str(self.hooks[i])
@@ -86,4 +95,5 @@ class FocusOnDepth(nn.Module):
                 self.activation[name] = output
             return hook
         for h in hooks:
-            self.transformer_encoders.layers[h].register_forward_hook(get_activation('t'+str(h)))
+            #self.transformer_encoders.layers[h].register_forward_hook(get_activation('t'+str(h)))
+            self.transformer_encoders.blocks[h].register_forward_hook(get_activation('t'+str(h)))
