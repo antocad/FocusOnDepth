@@ -4,7 +4,7 @@
         "seed":0,
         "epochs":20,
         "batch_size":4,
-        "lr":0.0004,
+        "lr":0.004,
         "optim":"adam",
         "loss":"ssi",
         "momentum":0.9,
@@ -19,7 +19,7 @@
             "path_images":"./datasets/train/inputs",
             "path_segmentation":"./datasets/train/segmentation",
             "path_depth":"./datasets/train/depth",
-            "model_dpt":"."
+            "model_dpt":"./DPT/weights/dpt_large-midas-2f21e586.pt"
         },
         "extensions":{
             "ext_images":".jpg",
@@ -36,7 +36,7 @@
         }
     },
     "wandb":{
-        "enable":false,
+        "enable":true,
         "username":"younesbelkada",
         "images_to_show":3,
         "im_h":540,

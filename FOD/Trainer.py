@@ -40,6 +40,8 @@ class Trainer(object):
 
         #self.model.half()
         self.model.to(self.device)
+        # print(self.model)
+        # exit(0)
 
         self.loss = get_loss(config)
         self.optimizer = get_optimizer(config, self.model)
@@ -71,9 +73,8 @@ class Trainer(object):
                 y_depth = y_depth.squeeze(1)
 
                 # get loss
-                loss = self.loss(outputs_depth, y_depth, printable=True)
+                loss = self.loss(outputs_depth, y_depth)
                 loss.backward()
-                return
 
                 # step optimizer
                 self.optimizer.step()
@@ -110,7 +111,7 @@ class Trainer(object):
                 y_depth = y_depth.squeeze(1)
 
                 # get loss
-                loss = self.loss(outputs_depth, y_depth, printable=True)
+                loss = self.loss(outputs_depth, y_depth)
                 val_loss += loss.item()
 
                 if len(validation_samples) < self.config['wandb']['images_to_show']:
@@ -133,9 +134,12 @@ class Trainer(object):
 
                 val_tensor = torch.cat(preds_samples, dim=0).detach().cpu().numpy()
                 preds = np.repeat(val_tensor, 3, axis=1)
+                preds = (preds - preds.min()) / (preds.max() - preds.min() + 1e-8)
 
-                print("IMGS:")
-                print(imgs.shape, imgs.mean(), imgs.max(), imgs.min())
+                print("******************************************************")
+                print(imgs.shape, imgs.mean().item(), imgs.max().item(), imgs.min().item())
+                print(truths.shape, truths.mean().item(), truths.max().item(), truths.min().item())
+                print(preds.shape, preds.mean().item(), preds.max().item(), preds.min().item())
                 print("******************************************************")
 
                 imgs = imgs.transpose(0,2,3,1)

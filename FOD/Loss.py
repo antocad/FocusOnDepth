@@ -122,30 +122,30 @@ class ScaleAndShiftInvariantLoss(nn.Module):
 
         self.__prediction_ssi = None
 
-    def forward(self, prediction, target, printable=False):
+    def forward(self, prediction, target):
         #preprocessing
-        prediction = prediction.clone()
-        # target = target.clone()
-        print(target.shape, prediction.shape)
+
+        # print(target.shape, prediction.shape)
         mask = target > 0
-        target[mask] = (target[mask] - target[mask].min()) / (target[mask].max() - target[mask].min()) * 9 + 1
-        #target[mask] = 10. / target[mask]
-        target[~mask] = 0.
+        # target[mask] = (target[mask] - target[mask].min()) / (target[mask].max() - target[mask].min()) * 9 + 1
+        # target[mask] = 10. / target[mask]
+        # target[~mask] = 0.
 
-        mask2 = prediction > 0
+        #mask2 = prediction > 0
         # print(mask2.type(torch.float32).mean())
-        #prediction[mask2] = (prediction[mask2] - prediction[mask2].min()) / (prediction[mask2].max() - prediction[mask2].min()) * 9 + 1
+        prediction = (prediction - prediction.min()) / (prediction.max() - prediction.min() + 1e-8)
         #prediction[mask2] = 10. / prediction[mask2]
-        prediction[~mask2] = 0.
+        #prediction[~mask2] = 0.
 
-        if printable:
-            print("******************************************************")
-            print(target.shape, target.mean().item(), target.max().item(), target.min().item())
-            print(prediction.shape, prediction.mean().item(), prediction.max().item(), prediction.min().item())
-            print("******************************************************")
+        # if printable:
+        #     print("******************************************************")
+        #     print(target.shape, target.mean().item(), target.max().item(), target.min().item())
+        #     print(prediction.shape, prediction.mean().item(), prediction.max().item(), prediction.min().item())
+        #     print("******************************************************")
 
         #calcul
         scale, shift = compute_scale_and_shift(prediction, target, mask)
+        # print(scale, shift)
         self.__prediction_ssi = scale.view(-1, 1, 1) * prediction + shift.view(-1, 1, 1)
 
         total = self.__data_loss(self.__prediction_ssi, target, mask)
