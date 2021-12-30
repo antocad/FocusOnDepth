@@ -125,22 +125,23 @@ class ScaleAndShiftInvariantLoss(nn.Module):
     def forward(self, prediction, target, printable=False):
         #preprocessing
         prediction = prediction.clone()
-        target = target.clone()
-
+        # target = target.clone()
+        print(target.shape, prediction.shape)
         mask = target > 0
         target[mask] = (target[mask] - target[mask].min()) / (target[mask].max() - target[mask].min()) * 9 + 1
-        target[mask] = 10. / target[mask]
+        #target[mask] = 10. / target[mask]
         target[~mask] = 0.
 
-        # mask2 = prediction > 0
-        # prediction[mask2] = (prediction[mask2] - prediction[mask2].min()) / (prediction[mask2].max() - prediction[mask2].min()) * 9 + 1
-        # prediction[mask2] = 10. / prediction[mask2]
-        # prediction[~mask2] = 0.
+        mask2 = prediction > 0
+        # print(mask2.type(torch.float32).mean())
+        #prediction[mask2] = (prediction[mask2] - prediction[mask2].min()) / (prediction[mask2].max() - prediction[mask2].min()) * 9 + 1
+        #prediction[mask2] = 10. / prediction[mask2]
+        prediction[~mask2] = 0.
 
         if printable:
             print("******************************************************")
-            print(target.shape, target.mean(), target.max(), target.min())
-            print(prediction.shape, prediction.mean(), prediction.max(), prediction.min())
+            print(target.shape, target.mean().item(), target.max().item(), target.min().item())
+            print(prediction.shape, prediction.mean().item(), prediction.max().item(), prediction.min().item())
             print("******************************************************")
 
         #calcul

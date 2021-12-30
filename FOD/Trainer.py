@@ -71,8 +71,9 @@ class Trainer(object):
                 y_depth = y_depth.squeeze(1)
 
                 # get loss
-                loss = self.loss(outputs_depth, y_depth)
+                loss = self.loss(outputs_depth, y_depth, printable=True)
                 loss.backward()
+                return
 
                 # step optimizer
                 self.optimizer.step()
