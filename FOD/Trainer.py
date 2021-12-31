@@ -141,34 +141,34 @@ class Trainer(object):
                 imgs = torch.cat(validation_samples, dim=0).detach().cpu().numpy()
                 imgs = (imgs - imgs.min()) / (imgs.max() - imgs.min())
 
-                truths_tensor = torch.cat(depth_truth_samples, dim=0).detach().cpu().numpy()
-                truths = np.repeat(truths_tensor, 3, axis=1)
+                tmp = torch.cat(depth_truth_samples, dim=0).detach().cpu().numpy()
+                depth_truths = np.repeat(tmp, 3, axis=1)
 
-                val_tensor = torch.cat(depth_preds_samples, dim=0).detach().cpu().numpy()
-                preds = np.repeat(val_tensor, 3, axis=1)
-                preds = (preds - preds.min()) / (preds.max() - preds.min() + 1e-8)
+                tmp = torch.cat(depth_preds_samples, dim=0).detach().cpu().numpy()
+                depth_preds = np.repeat(tmp, 3, axis=1)
+                depth_preds = (depth_preds - depth_preds.min()) / (depth_preds.max() - depth_preds.min() + 1e-8)
 
-                ground_truth_seg_tensor = torch.cat(segmentation_truth_samples, dim=0).detach().cpu().numpy()
-                segs = np.repeat(ground_truth_seg_tensor, 3, axis=1).astype('float32')
+                tmp = torch.cat(segmentation_truth_samples, dim=0).detach().cpu().numpy()
+                segmentation_truths = np.repeat(tmp, 3, axis=1).astype('float32')
 
-                pred_seg_tensor = torch.argmax(torch.cat(segmentation_preds_samples, dim=0), dim=1).unsqueeze(1).detach().cpu().numpy()
-                pred_segs = np.repeat(pred_seg_tensor, 3, axis=1)
-                pred_segs = pred_seg_tensor.astype('float32')
+                tmp = torch.argmax(torch.cat(segmentation_preds_samples, dim=0), dim=1).detach().cpu().numpy()
+                segmentation_preds = np.repeat(tmp, 3, axis=1)
+                segmentation_preds = segmentation_preds.astype('float32')
 
 
                 print("******************************************************")
                 print(imgs.shape, imgs.mean().item(), imgs.max().item(), imgs.min().item())
-                print(truths.shape, truths.mean().item(), truths.max().item(), truths.min().item())
-                print(preds.shape, preds.mean().item(), preds.max().item(), preds.min().item())
-                print(segs.shape, segs.mean().item(), segs.max().item(), segs.min().item())
-                print(pred_segs.shape, pred_segs.mean().item(), pred_segs.max().item(), pred_segs.min().item())
+                print(depth_truths.shape, depth_truths.mean().item(), depth_truths.max().item(), depth_truths.min().item())
+                print(depth_preds.shape, depth_preds.mean().item(), depth_preds.max().item(), depth_preds.min().item())
+                print(segmentation_truths.shape, segmentation_truths.mean().item(), segmentation_truths.max().item(), segmentation_truths.min().item())
+                print(segmentation_preds.shape, segmentation_preds.mean().item(), segmentation_preds.max().item(), segmentation_preds.min().item())
                 print("******************************************************")
 
                 imgs = imgs.transpose(0,2,3,1)
-                truths = truths.transpose(0,2,3,1)
-                preds = preds.transpose(0,2,3,1)
-                segs = segs.transpose(0,2,3,1)
-                pred_segs = pred_segs.transpose(0,2,3,1)
+                depth_truths = depth_truths.transpose(0,2,3,1)
+                depth_preds = depth_preds.transpose(0,2,3,1)
+                segmentation_truths = segmentation_truths.transpose(0,2,3,1)
+                segmentation_preds = segmentation_preds.transpose(0,2,3,1)
 
                 #val_predictions = np.concatenate((truth, pred), axis=-2).transpose(0,2,3,1)
                 #output_dim = (2*int(self.config['wandb']['im_h']), int(self.config['wandb']['im_w']))
@@ -176,10 +176,10 @@ class Trainer(object):
 
                 wandb.log(
                     {"img": [wandb.Image(cv2.resize(im, output_dim), caption='val_{}'.format(i+1)) for i, im in enumerate(imgs)],
-                    "imgTruths": [wandb.Image(cv2.resize(im, output_dim), caption='val_truths{}'.format(i+1)) for i, im in enumerate(truths)],
-                    "imgPreds": [wandb.Image(cv2.resize(im, output_dim), caption='val_pred{}'.format(i+1)) for i, im in enumerate(preds)],
-                    "segTruths": [wandb.Image(cv2.resize(im, output_dim), caption='val_segtruths{}'.format(i+1)) for i, im in enumerate(segs)],
-                    "segPreds": [wandb.Image(cv2.resize(im, output_dim), caption='val_segpred{}'.format(i+1)) for i, im in enumerate(pred_segs)]
+                    "imgTruths": [wandb.Image(cv2.resize(im, output_dim), caption='val_truths{}'.format(i+1)) for i, im in enumerate(depth_truths)],
+                    "imgPreds": [wandb.Image(cv2.resize(im, output_dim), caption='val_pred{}'.format(i+1)) for i, im in enumerate(depth_preds)],
+                    "segTruths": [wandb.Image(cv2.resize(im, output_dim), caption='val_segtruths{}'.format(i+1)) for i, im in enumerate(segmentation_truths)],
+                    "segPreds": [wandb.Image(cv2.resize(im, output_dim), caption='val_segpred{}'.format(i+1)) for i, im in enumerate(segmentation_preds)]
                     }
                 )
         return val_loss

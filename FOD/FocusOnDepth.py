@@ -46,18 +46,14 @@ class FocusOnDepth(nn.Module):
         self.pos_embedding = nn.Parameter(torch.randn(1, num_patches + 1, emb_dim))
 
         #Transformer
-        """
-        encoder_layer = nn.TransformerEncoderLayer(d_model=emb_dim, nhead=nhead, dropout=transformer_dropout, dim_feedforward=emb_dim*4)
-        self.transformer_encoders = nn.TransformerEncoder(encoder_layer, num_layers=num_layers_encoder)
+        # encoder_layer = nn.TransformerEncoderLayer(d_model=emb_dim, nhead=nhead, dropout=transformer_dropout, dim_feedforward=emb_dim*4)
+        # self.transformer_encoders = nn.TransformerEncoder(encoder_layer, num_layers=num_layers_encoder)
+        self.transformer_encoders = timm.create_model("vit_large_patch16_384", pretrained=True)
+
         #Register hooks
         self.activation = {}
         self.hooks = hooks
-        self._get_layers_from_hooks(self.hooks)"""
-        self.transformer_encoders = timm.create_model("vit_large_patch16_384", pretrained=True)
-        self.activation = {}
-        self.hooks = hooks
         self._get_layers_from_hooks(self.hooks)
-
 
         #Reassembles Fusion
         self.reassembles = []
@@ -69,8 +65,8 @@ class FocusOnDepth(nn.Module):
         self.fusions = nn.ModuleList(self.fusions)
 
         #Head
-        self.head = HeadDepth(resample_dim)
-        self.head_seg = HeadSeg(resample_dim, nclasses=nclasses)
+        self.head_depth = HeadDepth(resample_dim)
+        self.head_segmentation = HeadSeg(resample_dim, nclasses=nclasses)
 
     def forward(self, img):
         # x = self.to_patch_embedding(img)
@@ -79,7 +75,7 @@ class FocusOnDepth(nn.Module):
         # x = torch.cat((cls_tokens, x), dim=1)
         # x += self.pos_embedding[:, :(n + 1)]
         # t = self.transformer_encoders(x)
-        
+
         t = self.transformer_encoders(img)
         previous_stage = None
         for i in np.arange(len(self.fusions)-1, -1, -1):
@@ -88,9 +84,9 @@ class FocusOnDepth(nn.Module):
             reassemble_result = self.reassembles[i](activation_result)
             fusion_result = self.fusions[i](reassemble_result, previous_stage)
             previous_stage = fusion_result
-        out_depth = self.head(previous_stage)
-        out_seg = self.head_seg(previous_stage)
-        return out_depth, out_seg
+        out_depth = self.head_depth(previous_stage)
+        out_segmentation = self.head_segmentation(previous_stage)
+        return out_depth, out_segmentation
 
     def _get_layers_from_hooks(self, hooks):
         def get_activation(name):
