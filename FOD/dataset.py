@@ -1,6 +1,7 @@
 import os
 import torch
 from PIL import Image
+import numpy as np
 
 from tqdm import tqdm
 from glob import glob
@@ -30,16 +31,17 @@ class AutoFocusDataset(Dataset):
         path_segmentations = os.path.join(config['Dataset']['paths']['path_dataset'], dataset_name, config['Dataset']['paths']['path_segmentations'])
         
         self.paths_images = get_total_paths(path_images, config['Dataset']['extensions']['ext_images'])
-        self.paths_depth = get_total_paths(path_depths, config['Dataset']['extensions']['ext_depths'])
-        self.paths_segmentation = get_total_paths(path_segmentations, config['Dataset']['extensions']['ext_segmentations'])
+        self.paths_depths = get_total_paths(path_depths, config['Dataset']['extensions']['ext_depths'])
+        self.paths_segmentations = get_total_paths(path_segmentations, config['Dataset']['extensions']['ext_segmentations'])
         
         assert (self.split in ['train', 'test', 'val']), "Invalid split!"
-        assert (len(self.path_images) == len(self.path_depths)), "Different number of instances between the input and the depth maps"
+        assert (len(self.paths_images) == len(self.paths_depths)), "Different number of instances between the input and the depth maps"
+        assert (len(self.paths_images) == len(self.paths_segmentations)), "Different number of instances between the input and the segmentation maps"
         assert (config['Dataset']['splits']['split_train']+config['Dataset']['splits']['split_test']+config['Dataset']['splits']['split_val'] == 1), "Invalid splits (sum must be equal to 1)"
         # check for segmentation
 
         # utility func for splitting
-        self.path_images, self.path_depths, self.path_segmentation = get_splitted_dataset(config, self.split, self.path_images, self.path_depth, self.path_segmentation)
+        self.paths_images, self.paths_depths, self.paths_segmentations = get_splitted_dataset(config, self.split, dataset_name, self.paths_images, self.paths_depths, self.paths_segmentations)
 
         # Get the transforms
         self.transform_image, self.transform_depth, self.transform_seg = get_transforms(config)
@@ -48,7 +50,7 @@ class AutoFocusDataset(Dataset):
         """
             Function to get the number of images using the given list of images
         """
-        return len(self.path_images)
+        return len(self.paths_images)
     
     def __getitem__(self, idx):
         """
@@ -59,9 +61,8 @@ class AutoFocusDataset(Dataset):
         
         image = self.transform_image(Image.open(self.paths_images[idx]))
         depth = self.transform_depth(Image.open(self.paths_depths[idx]))
+        segmentation = self.transform_seg(Image.open(self.paths_segmentations[idx]))
         # to do: segmentation
 
-        return image, depth
-
-
+        return image, depth, segmentation
 

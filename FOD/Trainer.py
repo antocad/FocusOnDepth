@@ -61,10 +61,10 @@ class Trainer(object):
         for epoch in range(epochs):  # loop over the dataset multiple times
             running_loss = 0.0
             self.model.train()
-            for i, (x, y_depth) in tqdm(enumerate(train_dataloader)):
+            for i, (x, y_depth, y_segmentation) in tqdm(enumerate(train_dataloader)):
                 # get the inputs; data is a list of [inputs, labels]
                 #x, y_depth = x.to(self.device).half(), y_depth.to(self.device).half()
-                x, y_depth = x.to(self.device), y_depth.to(self.device)
+                x, y_depth, y_segmentation = x.to(self.device), y_depth.to(self.device), y_segmentation.to(self.device)
 
                 # zero the parameter gradients
                 self.optimizer.zero_grad()
@@ -109,8 +109,8 @@ class Trainer(object):
         preds_samples = ()
 
         with torch.no_grad():
-            for i, (x, y_depth) in tqdm(enumerate(val_dataloader)):
-                x, y_depth = x.to(self.device), y_depth.to(self.device)
+            for i, (x, y_depth, y_segmentation) in tqdm(enumerate(val_dataloader)):
+                x, y_depth, y_segmentation = x.to(self.device), y_depth.to(self.device), y_segmentation.to(self.device)
                 outputs_depth = self.model(x)
 
                 outputs_depth = outputs_depth.squeeze(1)
