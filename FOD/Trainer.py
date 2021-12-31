@@ -4,6 +4,7 @@ import matplotlib.pyplot as plt
 import numpy as np
 import wandb
 import cv2
+import torch.nn as nn
 
 from tqdm import tqdm
 from os import replace
@@ -46,6 +47,7 @@ class Trainer(object):
         #exit(0)
 
         self.loss = get_loss(config)
+        self.seg_loss = nn.CrossEntropyLoss()
         self.optimizer = get_optimizer(config, self.model)
 
     def train(self, train_dataloader, val_dataloader):
@@ -70,13 +72,16 @@ class Trainer(object):
                 self.optimizer.zero_grad()
 
                 # forward + backward + optimizer
-                outputs_depth = self.model(x)
+                outputs_depth, output_seg = self.model(x)
 
                 outputs_depth = outputs_depth.squeeze(1)
                 y_depth = y_depth.squeeze(1)
+                y_segmentation = y_segmentation.squeeze(1).long()
 
                 # get loss
-                loss = self.loss(outputs_depth, y_depth)
+                loss = self.loss(outputs_depth, y_depth) + self.seg_loss(output_seg, y_segmentation)
+
+
                 loss.backward()
 
                 # step optimizer
@@ -107,23 +112,30 @@ class Trainer(object):
         validation_samples = ()
         truths_samples = ()
         preds_samples = ()
+        seg_samples = ()
+        seg_pred_samples = ()
 
         with torch.no_grad():
             for i, (x, y_depth, y_segmentation) in tqdm(enumerate(val_dataloader)):
                 x, y_depth, y_segmentation = x.to(self.device), y_depth.to(self.device), y_segmentation.to(self.device)
-                outputs_depth = self.model(x)
+                #outputs_depth = self.model(x)
+                outputs_depth, output_seg = self.model(x)
+                
 
                 outputs_depth = outputs_depth.squeeze(1)
                 y_depth = y_depth.squeeze(1)
+                y_segmentation = y_segmentation.squeeze(1).long()
 
                 # get loss
-                loss = self.loss(outputs_depth, y_depth)
+                loss = self.loss(outputs_depth, y_depth) + self.seg_loss(output_seg, y_segmentation)
                 val_loss += loss.item()
 
                 if len(validation_samples) < self.config['wandb']['images_to_show']:
                     validation_samples = (*validation_samples, x[0].unsqueeze(0))
                     truths_samples = (*truths_samples, y_depth[0].unsqueeze(0).unsqueeze(0))
                     preds_samples = (*preds_samples, outputs_depth[0].unsqueeze(0).unsqueeze(0))
+                    seg_samples = (*seg_samples, y_segmentation[0].unsqueeze(0).unsqueeze(0))
+                    seg_pred_samples = (*seg_pred_samples, output_seg[0].unsqueeze(0))
 
             val_loss = val_loss / len(val_dataloader)
             print('val_loss = ', val_loss)
@@ -142,16 +154,28 @@ class Trainer(object):
                 preds = np.repeat(val_tensor, 3, axis=1)
                 preds = (preds - preds.min()) / (preds.max() - preds.min() + 1e-8)
 
+                ground_truth_seg_tensor = torch.cat(seg_samples, dim=0).detach().cpu().numpy()
+                segs = np.repeat(ground_truth_seg_tensor, 3, axis=1).astype('float32')
+
+                pred_seg_tensor = torch.argmax(torch.cat(seg_pred_samples, dim=0), dim=1).unsqueeze(1).detach().cpu().numpy()
+                pred_segs = np.repeat(pred_seg_tensor, 3, axis=1)
+                pred_segs = pred_seg_tensor.astype('float32')
+
+
                 print("******************************************************")
                 print(imgs.shape, imgs.mean().item(), imgs.max().item(), imgs.min().item())
                 print(truths.shape, truths.mean().item(), truths.max().item(), truths.min().item())
                 print(preds.shape, preds.mean().item(), preds.max().item(), preds.min().item())
+                print(segs.shape, segs.mean().item(), segs.max().item(), segs.min().item())
+                print(pred_segs.shape, pred_segs.mean().item(), pred_segs.max().item(), pred_segs.min().item())
                 print("******************************************************")
 
                 imgs = imgs.transpose(0,2,3,1)
                 truths = truths.transpose(0,2,3,1)
                 preds = preds.transpose(0,2,3,1)
-
+                segs = segs.transpose(0,2,3,1)
+                pred_segs = pred_segs.transpose(0,2,3,1)
+                
                 #val_predictions = np.concatenate((truth, pred), axis=-2).transpose(0,2,3,1)
                 #output_dim = (2*int(self.config['wandb']['im_h']), int(self.config['wandb']['im_w']))
                 output_dim = (int(self.config['wandb']['im_w']), int(self.config['wandb']['im_h']))
@@ -159,12 +183,15 @@ class Trainer(object):
                 wandb.log(
                     {"img": [wandb.Image(cv2.resize(im, output_dim), caption='val_{}'.format(i+1)) for i, im in enumerate(imgs)],
                     "imgTruths": [wandb.Image(cv2.resize(im, output_dim), caption='val_truths{}'.format(i+1)) for i, im in enumerate(truths)],
-                    "imgPreds": [wandb.Image(cv2.resize(im, output_dim), caption='val_pred{}'.format(i+1)) for i, im in enumerate(preds)]}
+                    "imgPreds": [wandb.Image(cv2.resize(im, output_dim), caption='val_pred{}'.format(i+1)) for i, im in enumerate(preds)],
+                    "segTruths": [wandb.Image(cv2.resize(im, output_dim), caption='val_segtruths{}'.format(i+1)) for i, im in enumerate(segs)],
+                    "segPreds": [wandb.Image(cv2.resize(im, output_dim), caption='val_segpred{}'.format(i+1)) for i, im in enumerate(pred_segs)]
+                    }
                 )
         return val_loss
     
     def save_model(self):
-        path_model = os.path.join(self.config['General']['path_model'], self.model.__class__.__name__+'.p')
+        path_model = os.path.join(self.config['General']['path_model'], self.model.__class__.__name__)
         create_dir(path_model)
-        torch.save(self.model.state_dict(), path_model)
+        torch.save(self.model.state_dict(), path_model+'.p')
         print('Model saved at : {}'.format(path_model))

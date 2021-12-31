@@ -7,7 +7,7 @@ from einops.layers.torch import Rearrange
 
 from FOD.Reassemble import Reassemble
 from FOD.Fusion import Fusion
-from FOD.Head import HeadDepth
+from FOD.Head import HeadDepth, HeadSeg
 
 class FocusOnDepth(nn.Module):
     def __init__(self,
@@ -20,7 +20,8 @@ class FocusOnDepth(nn.Module):
                  hooks = [5, 11, 17, 23],
                  reassemble_s = [4, 8, 16, 32],
                  nhead = 16,
-                 transformer_dropout = 0):
+                 transformer_dropout = 0,
+                 nclasses=2):
         """
         Focus on Depth - Large
         image_size : (c, h, w)
@@ -69,6 +70,7 @@ class FocusOnDepth(nn.Module):
 
         #Head
         self.head = HeadDepth(resample_dim)
+        self.head_seg = HeadSeg(resample_dim, nclasses=nclasses)
 
     def forward(self, img):
         # x = self.to_patch_embedding(img)
@@ -86,8 +88,9 @@ class FocusOnDepth(nn.Module):
             reassemble_result = self.reassembles[i](activation_result)
             fusion_result = self.fusions[i](reassemble_result, previous_stage)
             previous_stage = fusion_result
-        out = self.head(previous_stage)
-        return out
+        out_depth = self.head(previous_stage)
+        out_seg = self.head_seg(previous_stage)
+        return out_depth, out_seg
 
     def _get_layers_from_hooks(self, hooks):
         def get_activation(name):

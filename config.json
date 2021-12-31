@@ -43,7 +43,7 @@
         }
     },
     "wandb":{
-        "enable":false,
+        "enable":true,
         "username":"younesbelkada",
         "images_to_show":3,
         "im_h":540,
