@@ -1,18 +1,19 @@
 {
     "General":{
-        "device":"cuda",
+        "device":"cpu",
         "seed":0,
         "epochs":20,
-        "batch_size":4,
+        "batch_size":2,
         "lr":0.004,
         "optim":"adam",
         "loss":"ssi",
         "momentum":0.9,
         "patch_size":16,
-        "emb_dim":256,
+        "emb_dim":1024,
         "read":"projection",
         "resample_dim":128,
-        "nhead":4
+        "nhead":4,
+        "path_model":"models"
     },
     "Dataset":{
         "paths":{
@@ -27,16 +28,16 @@
             "ext_depth":".jpg"
         },
         "splits":{
-            "split_train":0.01,
+            "split_train":0.1,
             "split_val":0.2,
-            "split_test":0.79
+            "split_test":0.7
         },
         "transforms":{
             "resize":384
         }
     },
     "wandb":{
-        "enable":true,
+        "enable":false,
         "username":"younesbelkada",
         "images_to_show":3,
         "im_h":540,

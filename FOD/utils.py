@@ -1,4 +1,4 @@
-import os
+import os, errno
 import numpy as np
 import torch.nn as nn
 import torch.optim as optim
@@ -41,6 +41,12 @@ def get_loss(config):
     else:
         return None
 
+def create_dir(directory):
+    try:
+        os.makedirs(directory)
+    except OSError as e:
+        if e.errno != errno.EEXIST:
+            raise
 
 def get_optimizer(config, net):
     if config['General']['optim'] == 'adam':

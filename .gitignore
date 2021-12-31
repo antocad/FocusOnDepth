@@ -4,3 +4,6 @@ DPT/weights/*.pt
 *.pyc
 *.pyc
 wandb/*
+*.png
+*.jpg
+*.right

@@ -1,12 +1,14 @@
-from os import replace
+import os
 import torch
 import matplotlib.pyplot as plt
 import numpy as np
 import wandb
 import cv2
-from tqdm import tqdm
 
-from FOD.utils import get_loss, get_optimizer
+from tqdm import tqdm
+from os import replace
+from numpy.core.numeric import Inf
+from FOD.utils import get_loss, get_optimizer, create_dir
 from FOD.FocusOnDepth import FocusOnDepth
 
 import DPT.util.io
@@ -55,6 +57,7 @@ class Trainer(object):
                 "epochs": epochs,
                 "batch_size": self.config['General']['batch_size']
             }
+        val_loss = Inf
         for epoch in range(epochs):  # loop over the dataset multiple times
             running_loss = 0.0
             self.model.train()
@@ -86,7 +89,10 @@ class Trainer(object):
                 if i%50 == 0:
                     print('epoch {} : loss = '.format(epoch+1), running_loss/(50*self.config['General']['batch_size']))
                     running_loss = 0
-            self.run_eval(train_dataloader, val_dataloader)
+            new_val_loss = self.run_eval(train_dataloader, val_dataloader)
+            if new_val_loss < val_loss:
+                self.save_model()
+                val_loss = new_val_loss
         print('Finished Training')
 
     def run_eval(self, train_dataloader, val_dataloader):
@@ -155,3 +161,10 @@ class Trainer(object):
                     "imgTruths": [wandb.Image(cv2.resize(im, output_dim), caption='val_truths{}'.format(i+1)) for i, im in enumerate(truths)],
                     "imgPreds": [wandb.Image(cv2.resize(im, output_dim), caption='val_pred{}'.format(i+1)) for i, im in enumerate(preds)]}
                 )
+        return val_loss
+    
+    def save_model(self):
+        path_model = os.path.join(self.config['General']['path_model'], self.model.__class__.__name__)
+        create_dir(path_model)
+        torch.save(self.model.state_dict(), path_model)
+        print('Model saved at : {}'.format(path_model))
