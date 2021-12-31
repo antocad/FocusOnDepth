@@ -222,10 +222,8 @@ def write_segm_img(path, image, labels, palette="detail", alpha=0.5):
 
     img = Image.fromarray(np.uint8(255*image)).convert("RGBA")
     seg = mask.convert("RGBA")
-
-    plt.imshow(seg)
-    plt.show()
-    seg.save('.'.join(path.split('.')[:-1]) + "_seg.png")
+    
+    seg.save(path + ".png")
 
     #out = Image.blend(img, seg, alpha)
     #out.save(path + ".png")

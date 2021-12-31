@@ -93,9 +93,6 @@ def run(input_path, output_path, model_path, model_type="dpt_hybrid", optimize=T
         img = DPT.util.io.read_image(img_name)
         img_input = transform({"image": img})["image"]
 
-        plt.imshow(np.transpose(img_input, (1, 2, 0)))
-        plt.show()
-
         # compute
         with torch.no_grad():
             sample = torch.from_numpy(img_input).to(device).unsqueeze(0)
@@ -117,7 +114,6 @@ def run(input_path, output_path, model_path, model_type="dpt_hybrid", optimize=T
             output_path, os.path.splitext(os.path.basename(img_name))[0]
         )
         DPT.util.io.write_segm_img(filename, img, prediction, alpha=0.5)
-        break
     print("finished")
 
 
