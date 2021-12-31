@@ -17,15 +17,17 @@
     },
     "Dataset":{
         "paths":{
-            "path_images":"./datasets/train/inputs",
-            "path_segmentation":"./datasets/train/segmentation",
-            "path_depth":"./datasets/train/depth",
+            "path_dataset":"./datasets",
+            "list_datasets":["nyuv2", "inria"],
+            "path_images":"images",
+            "path_segmentations":"segmentations",
+            "path_depths":"depths",
             "model_dpt":"./DPT/weights/dpt_large-midas-2f21e586.pt"
         },
         "extensions":{
             "ext_images":".jpg",
-            "ext_segmentation":".jpg",
-            "ext_depth":".jpg"
+            "ext_segmentations":".jpg",
+            "ext_depths":".jpg"
         },
         "splits":{
             "split_train":0.1,
@@ -34,6 +36,10 @@
         },
         "transforms":{
             "resize":384
+        },
+        "classes":{
+            "person":[150,5,61],
+            "background":[0,0,0]
         }
     },
     "wandb":{

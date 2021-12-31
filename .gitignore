@@ -7,3 +7,4 @@ wandb/*
 *.png
 *.jpg
 *.right
+DPT/util/__pycache__/*.pyc

@@ -18,18 +18,23 @@ class AutoFocusDataset(Dataset):
         segmentation mask
         Args:
             :- config -: json config file 
+            :- dataset_name -: str
             :- split -: split ['train', 'val', 'test']
     """
-    def __init__(self, config, split=None):
+    def __init__(self, config, dataset_name, split=None):
         self.split = split
         self.config = config
 
-        self.path_images = get_total_paths(config['Dataset']['paths']['path_images'], config['Dataset']['extensions']['ext_images'])
-        self.path_depth = get_total_paths(config['Dataset']['paths']['path_depth'], config['Dataset']['extensions']['ext_depth'])
-        self.path_segmentation = get_total_paths(config['Dataset']['paths']['path_segmentation'], config['Dataset']['extensions']['ext_segmentation'])
+        path_images = os.path.join(config['Dataset']['paths']['path_dataset'], dataset_name, config['Dataset']['paths']['path_images'])
+        path_depths = os.path.join(config['Dataset']['paths']['path_dataset'], dataset_name, config['Dataset']['paths']['path_depths'])
+        path_segmentations = os.path.join(config['Dataset']['paths']['path_dataset'], dataset_name, config['Dataset']['paths']['path_segmentations'])
+        
+        self.paths_images = get_total_paths(path_images, config['Dataset']['extensions']['ext_images'])
+        self.paths_depth = get_total_paths(path_depths, config['Dataset']['extensions']['ext_depths'])
+        self.paths_segmentation = get_total_paths(path_segmentations, config['Dataset']['extensions']['ext_segmentations'])
         
         assert (self.split in ['train', 'test', 'val']), "Invalid split!"
-        assert (len(self.path_images) == len(self.path_depth)), "Different number of instances between the input and the depth maps"
+        assert (len(self.path_images) == len(self.path_depths)), "Different number of instances between the input and the depth maps"
         assert (config['Dataset']['splits']['split_train']+config['Dataset']['splits']['split_test']+config['Dataset']['splits']['split_val'] == 1), "Invalid splits (sum must be equal to 1)"
         # check for segmentation
 
@@ -52,8 +57,8 @@ class AutoFocusDataset(Dataset):
         if torch.is_tensor(idx):
             idx = idx.tolist()
         
-        image = self.transform_image(Image.open(self.path_images[idx]))
-        depth = self.transform_depth(Image.open(self.path_depths[idx]))
+        image = self.transform_image(Image.open(self.paths_images[idx]))
+        depth = self.transform_depth(Image.open(self.paths_depths[idx]))
         # to do: segmentation
 
         return image, depth

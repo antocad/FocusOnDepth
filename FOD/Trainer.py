@@ -164,7 +164,7 @@ class Trainer(object):
         return val_loss
     
     def save_model(self):
-        path_model = os.path.join(self.config['General']['path_model'], self.model.__class__.__name__)
+        path_model = os.path.join(self.config['General']['path_model'], self.model.__class__.__name__+'.p')
         create_dir(path_model)
         torch.save(self.model.state_dict(), path_model)
         print('Model saved at : {}'.format(path_model))

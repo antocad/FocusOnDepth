@@ -13,6 +13,7 @@ def get_total_paths(path, ext):
 
 def get_splitted_dataset(config, split, path_images, path_depths, path_segmentation):
     list_files = [os.path.basename(im) for im in path_images]
+    np.random.seed(config['General']['seed'])
     np.random.shuffle(list_files)
     if split == 'train':
         selected_files = list_files[:int(len(list_files)*config['Dataset']['splits']['split_train'])]
@@ -27,10 +28,20 @@ def get_splitted_dataset(config, split, path_images, path_depths, path_segmentat
     return path_images, path_depths, path_segmentation
 
 def get_transforms(config):
-    #transform_image = transforms.Compose([transforms.Resize((config['Dataset']['transforms']['resize'],config['Dataset']['transforms']['resize'])), transforms.ToTensor(), transforms.Normalize((0.485, 0.456, 0.406), (0.229, 0.224, 0.225))])
-    transform_image = transforms.Compose([transforms.Resize((config['Dataset']['transforms']['resize'],config['Dataset']['transforms']['resize'])), transforms.ToTensor(), transforms.Normalize(mean=[0.5, 0.5, 0.5], std=[0.5, 0.5, 0.5])])
-    transform_depth = transforms.Compose([transforms.Resize((config['Dataset']['transforms']['resize'],config['Dataset']['transforms']['resize'])), transforms.ToTensor()])
-    transform_seg = None
+    im_size = (config['Dataset']['transforms']['resize'],config['Dataset']['transforms']['resize'])
+
+    transform_image = transforms.Compose([
+        transforms.Resize(im_size), transforms.ToTensor(), 
+        transforms.Normalize(mean=[0.5, 0.5, 0.5], std=[0.5, 0.5, 0.5])
+        ])
+    transform_depth = transforms.Compose([
+        transforms.Resize(im_size), 
+        transforms.ToTensor()
+    ])
+    transform_seg = transforms.Compose([
+        transforms.Resize(im_size), 
+        transforms.ToTensor()
+    ])
     return transform_image, transform_depth,transform_seg
 
 def get_loss(config):
