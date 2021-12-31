@@ -1,24 +1,25 @@
 {
     "General":{
-        "device":"cpu",
+        "device":"cuda",
         "seed":0,
         "epochs":20,
-        "batch_size":2,
+        "batch_size":1,
         "lr":0.004,
         "optim":"adam",
-        "loss":"ssi",
+        "loss_depth":"ssi",
+        "loss_segmentation":"ce",
         "momentum":0.9,
         "patch_size":16,
         "emb_dim":1024,
         "read":"projection",
-        "resample_dim":128,
+        "resample_dim":256,
         "nhead":4,
         "path_model":"models"
     },
     "Dataset":{
         "paths":{
             "path_dataset":"./datasets",
-            "list_datasets":["nyuv2", "inria"],
+            "list_datasets":["inria"],
             "path_images":"images",
             "path_segmentations":"segmentations",
             "path_depths":"depths",
@@ -38,12 +39,14 @@
             "resize":384
         },
         "classes":{
-            "person":[150,5,61],
-            "background":[0,0,0]
+            "1": {
+                "name": "person",
+                "color": [150,5,61]
+            }
         }
     },
     "wandb":{
-        "enable":true,
+        "enable":false,
         "username":"younesbelkada",
         "images_to_show":3,
         "im_h":540,

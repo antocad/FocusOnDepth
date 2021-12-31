@@ -29,31 +29,33 @@ def get_splitted_dataset(config, split, dataset_name, path_images, path_depths, 
     return path_images, path_depths, path_segmentation
 
 def get_transforms(config):
-    im_size = (config['Dataset']['transforms']['resize'],config['Dataset']['transforms']['resize'])
-
+    im_size = config['Dataset']['transforms']['resize']
     transform_image = transforms.Compose([
-        transforms.Resize(im_size), transforms.ToTensor(), 
+        transforms.Resize((im_size, im_size)),
+        transforms.ToTensor(),
         transforms.Normalize(mean=[0.5, 0.5, 0.5], std=[0.5, 0.5, 0.5])
-        ])
+    ])
     transform_depth = transforms.Compose([
-        transforms.Resize(im_size), 
+        transforms.Resize((im_size, im_size)),
         transforms.Grayscale(num_output_channels=1) ,
         transforms.ToTensor()
     ])
     transform_seg = transforms.Compose([
-        transforms.Resize(im_size), 
+        transforms.Resize((im_size, im_size)),
         ToMask(config['Dataset']['classes']),
-        transforms.ToTensor()
     ])
-    return transform_image, transform_depth,transform_seg
+    return transform_image, transform_depth, transform_seg
 
-def get_loss(config):
-    if config['General']['loss'] == 'mse':
-        return nn.MSELoss()
-    elif config['General']['loss'] == 'ssi':
-        return ScaleAndShiftInvariantLoss()
-    else:
-        return None
+def get_losses(config):
+    loss_depth = None
+    loss_segmentation = None
+    if config['General']['loss_depth'] == 'mse':
+        loss_depth = nn.MSELoss()
+    elif config['General']['loss_depth'] == 'ssi':
+        loss_depth = ScaleAndShiftInvariantLoss()
+    if config['General']['loss_segmentation'] == 'ce':
+        loss_segmentation = nn.CrossEntropyLoss()
+    return loss_depth, loss_segmentation
 
 def create_dir(directory):
     try:

@@ -9,7 +9,7 @@ import torch.nn as nn
 from tqdm import tqdm
 from os import replace
 from numpy.core.numeric import Inf
-from FOD.utils import get_loss, get_optimizer, create_dir
+from FOD.utils import get_losses, get_optimizer, create_dir
 from FOD.FocusOnDepth import FocusOnDepth
 
 import DPT.util.io
@@ -41,13 +41,11 @@ class Trainer(object):
         #     enable_attention_hooks=False,
         # )
 
-        #self.model.half()
+        self.model.half()
         self.model.to(self.device)
         #print(self.model)
         #exit(0)
-
-        self.loss = get_loss(config)
-        self.seg_loss = nn.CrossEntropyLoss()
+        self.loss_depth, self.loss_segmentation = get_losses(config)
         self.optimizer = get_optimizer(config, self.model)
 
     def train(self, train_dataloader, val_dataloader):
@@ -63,25 +61,22 @@ class Trainer(object):
         for epoch in range(epochs):  # loop over the dataset multiple times
             running_loss = 0.0
             self.model.train()
-            for i, (x, y_depth, y_segmentation) in tqdm(enumerate(train_dataloader)):
+            for i, (X, Y_depths, Y_segmentations) in tqdm(enumerate(train_dataloader)):
                 # get the inputs; data is a list of [inputs, labels]
-                #x, y_depth = x.to(self.device).half(), y_depth.to(self.device).half()
-                x, y_depth, y_segmentation = x.to(self.device), y_depth.to(self.device), y_segmentation.to(self.device)
+                X, Y_depths, Y_segmentations = X.to(self.device).half(), Y_depths.to(self.device).half(), Y_segmentations.to(self.device).half()
+                #X, Y_depths, Y_segmentations = X.to(self.device), Y_depths.to(self.device), Y_segmentations.to(self.device)
 
                 # zero the parameter gradients
                 self.optimizer.zero_grad()
 
                 # forward + backward + optimizer
-                outputs_depth, output_seg = self.model(x)
-
-                outputs_depth = outputs_depth.squeeze(1)
-                y_depth = y_depth.squeeze(1)
-                y_segmentation = y_segmentation.squeeze(1).long()
+                output_depths, output_segmentations = self.model(X)
+                output_depths = output_depths.squeeze(1)
+                Y_depths = Y_depths.squeeze(1)
+                Y_segmentations = Y_segmentations.squeeze(1).long()
 
                 # get loss
-                loss = self.loss(outputs_depth, y_depth) + self.seg_loss(output_seg, y_segmentation)
-
-
+                loss = self.loss_depth(output_depths, Y_depths) + self.loss_segmentation(output_segmentations, Y_segmentations)
                 loss.backward()
 
                 # step optimizer
@@ -107,35 +102,34 @@ class Trainer(object):
             :- train_dataloader -: torch dataloader
             :- val_dataloader -: torch dataloader
         """
-        self.model.eval()
         val_loss = 0.
         validation_samples = ()
-        truths_samples = ()
-        preds_samples = ()
-        seg_samples = ()
-        seg_pred_samples = ()
+        depth_truth_samples = ()
+        depth_preds_samples = ()
+        segmentation_truth_samples = ()
+        segmentation_preds_samples = ()
 
+        self.model.eval()
         with torch.no_grad():
-            for i, (x, y_depth, y_segmentation) in tqdm(enumerate(val_dataloader)):
-                x, y_depth, y_segmentation = x.to(self.device), y_depth.to(self.device), y_segmentation.to(self.device)
-                #outputs_depth = self.model(x)
-                outputs_depth, output_seg = self.model(x)
-                
+            for i, (X, Y_depths, Y_segmentations) in tqdm(enumerate(val_dataloader)):
+                X, Y_depths, Y_segmentations = X.to(self.device).half(), Y_depths.to(self.device).half(), Y_segmentations.to(self.device).half()
+                #X, Y_depths, Y_segmentations = X.to(self.device), Y_depths.to(self.device), Y_segmentations.to(self.device)
 
-                outputs_depth = outputs_depth.squeeze(1)
-                y_depth = y_depth.squeeze(1)
-                y_segmentation = y_segmentation.squeeze(1).long()
+                output_depths, output_segmentations = self.model(X)
+                output_depths = output_depths.squeeze(1)
+                Y_depths = Y_depths.squeeze(1)
+                Y_segmentations = Y_segmentations.squeeze(1).long()
 
                 # get loss
-                loss = self.loss(outputs_depth, y_depth) + self.seg_loss(output_seg, y_segmentation)
+                loss = self.loss_depth(output_depths, Y_depths) + self.loss_segmentation(output_segmentations, Y_segmentations)
                 val_loss += loss.item()
 
                 if len(validation_samples) < self.config['wandb']['images_to_show']:
-                    validation_samples = (*validation_samples, x[0].unsqueeze(0))
-                    truths_samples = (*truths_samples, y_depth[0].unsqueeze(0).unsqueeze(0))
-                    preds_samples = (*preds_samples, outputs_depth[0].unsqueeze(0).unsqueeze(0))
-                    seg_samples = (*seg_samples, y_segmentation[0].unsqueeze(0).unsqueeze(0))
-                    seg_pred_samples = (*seg_pred_samples, output_seg[0].unsqueeze(0))
+                    validation_samples = (*validation_samples, X[0].unsqueeze(0))
+                    depth_truth_samples = (*depth_truth_samples, Y_depths[0].unsqueeze(0).unsqueeze(0))
+                    depth_preds_samples = (*depth_preds_samples, output_depths[0].unsqueeze(0).unsqueeze(0))
+                    segmentation_truth_samples = (*segmentation_truth_samples, Y_segmentations[0].unsqueeze(0).unsqueeze(0))
+                    segmentation_preds_samples = (*segmentation_preds_samples, output_segmentations[0].unsqueeze(0))
 
             val_loss = val_loss / len(val_dataloader)
             print('val_loss = ', val_loss)
@@ -147,17 +141,17 @@ class Trainer(object):
                 imgs = torch.cat(validation_samples, dim=0).detach().cpu().numpy()
                 imgs = (imgs - imgs.min()) / (imgs.max() - imgs.min())
 
-                truths_tensor = torch.cat(truths_samples, dim=0).detach().cpu().numpy()
+                truths_tensor = torch.cat(depth_truth_samples, dim=0).detach().cpu().numpy()
                 truths = np.repeat(truths_tensor, 3, axis=1)
 
-                val_tensor = torch.cat(preds_samples, dim=0).detach().cpu().numpy()
+                val_tensor = torch.cat(depth_preds_samples, dim=0).detach().cpu().numpy()
                 preds = np.repeat(val_tensor, 3, axis=1)
                 preds = (preds - preds.min()) / (preds.max() - preds.min() + 1e-8)
 
-                ground_truth_seg_tensor = torch.cat(seg_samples, dim=0).detach().cpu().numpy()
+                ground_truth_seg_tensor = torch.cat(segmentation_truth_samples, dim=0).detach().cpu().numpy()
                 segs = np.repeat(ground_truth_seg_tensor, 3, axis=1).astype('float32')
 
-                pred_seg_tensor = torch.argmax(torch.cat(seg_pred_samples, dim=0), dim=1).unsqueeze(1).detach().cpu().numpy()
+                pred_seg_tensor = torch.argmax(torch.cat(segmentation_preds_samples, dim=0), dim=1).unsqueeze(1).detach().cpu().numpy()
                 pred_segs = np.repeat(pred_seg_tensor, 3, axis=1)
                 pred_segs = pred_seg_tensor.astype('float32')
 
@@ -175,7 +169,7 @@ class Trainer(object):
                 preds = preds.transpose(0,2,3,1)
                 segs = segs.transpose(0,2,3,1)
                 pred_segs = pred_segs.transpose(0,2,3,1)
-                
+
                 #val_predictions = np.concatenate((truth, pred), axis=-2).transpose(0,2,3,1)
                 #output_dim = (2*int(self.config['wandb']['im_h']), int(self.config['wandb']['im_w']))
                 output_dim = (int(self.config['wandb']['im_w']), int(self.config['wandb']['im_h']))
@@ -189,7 +183,7 @@ class Trainer(object):
                     }
                 )
         return val_loss
-    
+
     def save_model(self):
         path_model = os.path.join(self.config['General']['path_model'], self.model.__class__.__name__)
         create_dir(path_model)
