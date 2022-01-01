@@ -77,6 +77,7 @@ class AutoFocusDataset(Dataset):
         image = self.transform_image(Image.open(self.paths_images[idx]))
         depth = self.transform_depth(Image.open(self.paths_depths[idx]))
         segmentation = self.transform_seg(Image.open(self.paths_segmentations[idx]))
+        imgorig = image.clone()
 
         if random.random() < self.p_flip:
             image = TF.hflip(image)
@@ -84,25 +85,37 @@ class AutoFocusDataset(Dataset):
             segmentation = TF.hflip(segmentation)
 
         if random.random() < self.p_crop:
-            random_size = random.randint(224, self.resize-1)
+            random_size = random.randint(256, self.resize-1)
             max_size = self.resize - random_size
             left = int(random.random()*max_size)
             top = int(random.random()*max_size)
-
             image = TF.crop(image, top, left, random_size, random_size)
             depth = TF.crop(depth, top, left, random_size, random_size)
             segmentation = TF.crop(segmentation, top, left, random_size, random_size)
-
             image = transforms.Resize((self.resize, self.resize))(image)
             depth = transforms.Resize((self.resize, self.resize))(depth)
             segmentation = transforms.Resize((self.resize, self.resize), interpolation=Image.NEAREST)(segmentation)
-        
+
         if random.random() < self.p_rot:
-            random_angle = random.random()*5
-            
+            #rotate
+            random_angle = random.random()*20 - 10 #[-10 ; 10]
+            mask = torch.ones((1,self.resize,self.resize)) #useful for the resize at the end
+            mask = TF.rotate(mask, random_angle, interpolation=Image.BILINEAR)
             image = TF.rotate(image, random_angle, interpolation=Image.BILINEAR)
             depth = TF.rotate(depth, random_angle, interpolation=Image.BILINEAR)
             segmentation = TF.rotate(segmentation, random_angle, interpolation=Image.NEAREST)
-
-        #show([image, depth, segmentation])
+            #crop to remove black borders due to the rotation
+            left = torch.argmax(mask[:,0,:]).item()
+            top = torch.argmax(mask[:,:,0]).item()
+            coin = min(left,top)
+            size = self.resize - 2*coin
+            image = TF.crop(image, coin, coin, size, size)
+            depth = TF.crop(depth, coin, coin, size, size)
+            segmentation = TF.crop(segmentation, coin, coin, size, size)
+            #Resize
+            image = transforms.Resize((self.resize, self.resize))(image)
+            depth = transforms.Resize((self.resize, self.resize))(depth)
+            segmentation = transforms.Resize((self.resize, self.resize), interpolation=Image.NEAREST)(segmentation)
+        # show([imgorig, image, depth, segmentation])
+        # exit(0)
         return image, depth, segmentation

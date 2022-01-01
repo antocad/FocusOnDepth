@@ -31,15 +31,15 @@
             "ext_depths":".jpg"
         },
         "splits":{
-            "split_train":1,
-            "split_val":0,
-            "split_test":0
+            "split_train":0.3,
+            "split_val":0.3,
+            "split_test":0.4
         },
         "transforms":{
             "resize":384,
-            "p_flip":1,
-            "p_crop":1,
-            "p_rot":1
+            "p_flip":0.5,
+            "p_crop":0.3,
+            "p_rot":0.2
         },
         "classes":{
             "1": {
@@ -49,7 +49,7 @@
         }
     },
     "wandb":{
-        "enable":true,
+        "enable":false,
         "username":"younesbelkada",
         "images_to_show":3,
         "im_h":540,

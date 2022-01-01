@@ -109,58 +109,42 @@ class Trainer(object):
         depth_preds_samples = ()
         segmentation_truth_samples = ()
         segmentation_preds_samples = ()
-
         self.model.eval()
         with torch.no_grad():
             for i, (X, Y_depths, Y_segmentations) in tqdm(enumerate(val_dataloader)):
                 # X, Y_depths, Y_segmentations = X.to(self.device).half(), Y_depths.to(self.device).half(), Y_segmentations.to(self.device).half()
                 X, Y_depths, Y_segmentations = X.to(self.device), Y_depths.to(self.device), Y_segmentations.to(self.device)
-
                 output_depths, output_segmentations = self.model(X)
                 output_depths = output_depths.squeeze(1)
                 Y_depths = Y_depths.squeeze(1)
                 Y_segmentations = Y_segmentations.squeeze(1)
-
                 # get loss
                 loss = self.loss_depth(output_depths, Y_depths) + self.loss_segmentation(output_segmentations, Y_segmentations)
                 val_loss += loss.item()
-
-                #output_segmentations = b, nbClasses, H, W ->  (1, nbClasses, H, W)
-
                 if len(validation_samples) < self.config['wandb']['images_to_show']:
                     validation_samples = (*validation_samples, X[0].unsqueeze(0))
                     depth_truth_samples = (*depth_truth_samples, Y_depths[0].unsqueeze(0).unsqueeze(0))
                     depth_preds_samples = (*depth_preds_samples, output_depths[0].unsqueeze(0).unsqueeze(0))
                     segmentation_truth_samples = (*segmentation_truth_samples, Y_segmentations[0].unsqueeze(0).unsqueeze(0))
                     segmentation_preds_samples = (*segmentation_preds_samples, output_segmentations[0].unsqueeze(0))
-
             val_loss = val_loss / len(val_dataloader)
             print('val_loss = ', val_loss)
 
             if self.config['wandb']['enable']:
-
                 wandb.log({"val_loss": val_loss})
-
                 imgs = torch.cat(validation_samples, dim=0).detach().cpu().numpy()
                 imgs = (imgs - imgs.min()) / (imgs.max() - imgs.min())
-
                 tmp = torch.cat(depth_truth_samples, dim=0).detach().cpu().numpy()
                 depth_truths = np.repeat(tmp, 3, axis=1)
-
                 tmp = torch.cat(depth_preds_samples, dim=0).detach().cpu().numpy()
                 depth_preds = np.repeat(tmp, 3, axis=1)
                 depth_preds = (depth_preds - depth_preds.min()) / (depth_preds.max() - depth_preds.min() + 1e-8)
-
                 tmp = torch.cat(segmentation_truth_samples, dim=0).detach().cpu().numpy()
                 segmentation_truths = np.repeat(tmp, 3, axis=1).astype('float32')
-
-                #(3, nbClasses, H, W)
                 tmp = torch.argmax(torch.cat(segmentation_preds_samples, dim=0), dim=1)
                 tmp = tmp.unsqueeze(1).detach().cpu().numpy()
                 segmentation_preds = np.repeat(tmp, 3, axis=1)
                 segmentation_preds = segmentation_preds.astype('float32')
-
-
                 print("******************************************************")
                 print(imgs.shape, imgs.mean().item(), imgs.max().item(), imgs.min().item())
                 print(depth_truths.shape, depth_truths.mean().item(), depth_truths.max().item(), depth_truths.min().item())
@@ -168,17 +152,12 @@ class Trainer(object):
                 print(segmentation_truths.shape, segmentation_truths.mean().item(), segmentation_truths.max().item(), segmentation_truths.min().item())
                 print(segmentation_preds.shape, segmentation_preds.mean().item(), segmentation_preds.max().item(), segmentation_preds.min().item())
                 print("******************************************************")
-
                 imgs = imgs.transpose(0,2,3,1)
                 depth_truths = depth_truths.transpose(0,2,3,1)
                 depth_preds = depth_preds.transpose(0,2,3,1)
                 segmentation_truths = segmentation_truths.transpose(0,2,3,1)
                 segmentation_preds = segmentation_preds.transpose(0,2,3,1)
-
-                #val_predictions = np.concatenate((truth, pred), axis=-2).transpose(0,2,3,1)
-                #output_dim = (2*int(self.config['wandb']['im_h']), int(self.config['wandb']['im_w']))
                 output_dim = (int(self.config['wandb']['im_w']), int(self.config['wandb']['im_h']))
-
                 wandb.log(
                     {"img": [wandb.Image(cv2.resize(im, output_dim), caption='val_{}'.format(i+1)) for i, im in enumerate(imgs)],
                     "imgTruths": [wandb.Image(cv2.resize(im, output_dim), caption='val_truths{}'.format(i+1)) for i, im in enumerate(depth_truths)],
