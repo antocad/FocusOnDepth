@@ -41,8 +41,8 @@ class HeadSeg(nn.Module):
             Interpolate(scale_factor=2, mode="bilinear", align_corners=True),
             nn.Conv2d(features // 2, 32, kernel_size=3, stride=1, padding=1),
             nn.ReLU(),
-            nn.Conv2d(32, nclasses, kernel_size=1, stride=1, padding=0),
-            nn.Softmax(dim=-1)
+            nn.Conv2d(32, nclasses, kernel_size=1, stride=1, padding=0)
+            #nn.Softmax(dim=1)
         )
     def forward(self, x):
         x = self.head(x)

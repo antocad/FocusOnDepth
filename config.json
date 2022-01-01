@@ -1,6 +1,6 @@
 {
     "General":{
-        "device":"cuda",
+        "device":"cpu",
         "seed":0,
         "epochs":20,
         "batch_size":1,
@@ -31,9 +31,9 @@
             "ext_depths":".jpg"
         },
         "splits":{
-            "split_train":0.66,
-            "split_val":0.34,
-            "split_test":0
+            "split_train":0.002,
+            "split_val":0.002,
+            "split_test":0.996
         },
         "transforms":{
             "resize":384
@@ -46,7 +46,7 @@
         }
     },
     "wandb":{
-        "enable":false,
+        "enable":true,
         "username":"younesbelkada",
         "images_to_show":3,
         "im_h":540,

@@ -8,3 +8,4 @@ wandb/*
 *.jpg
 *.right
 DPT/util/__pycache__/*.pyc
+models/FocusOnDepth.p

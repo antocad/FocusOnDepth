@@ -22,5 +22,5 @@ class ToMask(object):
             mask = (image_array == rgb_color)
             output_array[mask[:, :, 0]] = int(label)
 
-        output_array = torch.from_numpy(output_array).unsqueeze(0)
+        output_array = torch.from_numpy(output_array).unsqueeze(0).long()
         return output_array
