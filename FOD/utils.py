@@ -4,6 +4,7 @@ import torch.nn as nn
 import torch.optim as optim
 
 from glob import glob
+from PIL import Image
 from torchvision import transforms, utils
 
 from FOD.Loss import ScaleAndShiftInvariantLoss
@@ -41,7 +42,7 @@ def get_transforms(config):
         transforms.ToTensor()
     ])
     transform_seg = transforms.Compose([
-        transforms.Resize((im_size, im_size)),
+        transforms.Resize((im_size, im_size), interpolation=Image.NEAREST),
         ToMask(config['Dataset']['classes']),
     ])
     return transform_image, transform_depth, transform_seg

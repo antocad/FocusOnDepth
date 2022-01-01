@@ -31,12 +31,15 @@
             "ext_depths":".jpg"
         },
         "splits":{
-            "split_train":0.002,
-            "split_val":0.002,
-            "split_test":0.996
+            "split_train":1,
+            "split_val":0,
+            "split_test":0
         },
         "transforms":{
-            "resize":384
+            "resize":384,
+            "p_flip":1,
+            "p_crop":1,
+            "p_rot":1
         },
         "classes":{
             "1": {

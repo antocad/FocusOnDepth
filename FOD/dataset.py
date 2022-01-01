@@ -1,16 +1,27 @@
 import os
-import torch
-from PIL import Image
-import numpy as np
-
-from tqdm import tqdm
+import random
 from glob import glob
 
+import torch
+import numpy as np
+import matplotlib.pyplot as plt
+
+from tqdm import tqdm
+from PIL import Image
 from torch.utils.data.dataloader import default_collate
 from torch.utils.data import Dataset, DataLoader
 from torchvision import transforms
+import torchvision.transforms.functional as TF
 
 from FOD.utils import get_total_paths, get_splitted_dataset, get_transforms
+
+def show(imgs):
+    fix, axs = plt.subplots(ncols=len(imgs), squeeze=False)
+    for i, img in enumerate(imgs):
+        img = transforms.ToPILImage()(img.to('cpu').float())
+        axs[0, i].imshow(np.asarray(img))
+        axs[0, i].set(xticklabels=[], yticklabels=[], xticks=[], yticks=[])
+    plt.show()
 
 class AutoFocusDataset(Dataset):
     """
@@ -45,6 +56,12 @@ class AutoFocusDataset(Dataset):
         # Get the transforms
         self.transform_image, self.transform_depth, self.transform_seg = get_transforms(config)
 
+        # get p_flip from config
+        self.p_flip = config['Dataset']['transforms']['p_flip']
+        self.p_crop = config['Dataset']['transforms']['p_crop']
+        self.p_rot = config['Dataset']['transforms']['p_rot']
+        self.resize = config['Dataset']['transforms']['resize']
+
     def __len__(self):
         """
             Function to get the number of images using the given list of images
@@ -53,11 +70,39 @@ class AutoFocusDataset(Dataset):
 
     def __getitem__(self, idx):
         """
-            Getter function in order to get the predicted keypoints from an example image.
+            Getter function in order to get the triplet of images / depth maps and segmentation masks
         """
         if torch.is_tensor(idx):
             idx = idx.tolist()
         image = self.transform_image(Image.open(self.paths_images[idx]))
         depth = self.transform_depth(Image.open(self.paths_depths[idx]))
         segmentation = self.transform_seg(Image.open(self.paths_segmentations[idx]))
+
+        if random.random() < self.p_flip:
+            image = TF.hflip(image)
+            depth = TF.hflip(depth)
+            segmentation = TF.hflip(segmentation)
+
+        if random.random() < self.p_crop:
+            random_size = random.randint(224, self.resize-1)
+            max_size = self.resize - random_size
+            left = int(random.random()*max_size)
+            top = int(random.random()*max_size)
+
+            image = TF.crop(image, top, left, random_size, random_size)
+            depth = TF.crop(depth, top, left, random_size, random_size)
+            segmentation = TF.crop(segmentation, top, left, random_size, random_size)
+
+            image = transforms.Resize((self.resize, self.resize))(image)
+            depth = transforms.Resize((self.resize, self.resize))(depth)
+            segmentation = transforms.Resize((self.resize, self.resize), interpolation=Image.NEAREST)(segmentation)
+        
+        if random.random() < self.p_rot:
+            random_angle = random.random()*5
+            
+            image = TF.rotate(image, random_angle, interpolation=Image.BILINEAR)
+            depth = TF.rotate(depth, random_angle, interpolation=Image.BILINEAR)
+            segmentation = TF.rotate(segmentation, random_angle, interpolation=Image.NEAREST)
+
+        #show([image, depth, segmentation])
         return image, depth, segmentation
