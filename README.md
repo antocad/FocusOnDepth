@@ -26,6 +26,7 @@ methods.
 - [x] Make the training script work
 - [x] Create the dataset with person segmentation and depth estimation
 - [x] Create a strong codebase for training
+- [ ] Add data augmentations
 - [ ] Make the code modulable with timm and the list of hooks
 - [ ] Add an option to select whether we want depth only or segmentation only or both
 - [ ] Make 2 optimizers?
