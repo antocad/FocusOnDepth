@@ -104,6 +104,11 @@ class Trainer(object):
         """
         val_loss = 0.
         self.model.eval()
+        X_1 = None
+        Y_depths_1 = None
+        Y_segmentations_1 = None
+        output_depths_1 = None
+        output_segmentations_1 = None
         with torch.no_grad():
             pbar = tqdm(val_dataloader)
             pbar.set_description("Validation")
@@ -113,13 +118,19 @@ class Trainer(object):
                 output_depths = output_depths.squeeze(1) if output_depths != None else None
                 Y_depths = Y_depths.squeeze(1)
                 Y_segmentations = Y_segmentations.squeeze(1)
+                if i==0:
+                    X_1 = X
+                    Y_depths_1 = Y_depths
+                    Y_segmentations_1 = Y_segmentations
+                    output_depths_1 = output_depths
+                    output_segmentations_1 = output_segmentations
                 # get loss
                 loss = self.loss_depth(output_depths, Y_depths) + self.loss_segmentation(output_segmentations, Y_segmentations)
                 val_loss += loss.item()
                 pbar.set_postfix({'validation_loss': val_loss/((i+1)*self.config['General']['batch_size'])})
             if self.config['wandb']['enable']:
                 wandb.log({"val_loss": val_loss/((i+1)*self.config['General']['batch_size'])})
-                self.img_logger(X, Y_depths, Y_segmentations, output_depths, output_segmentations)
+                self.img_logger(X_1, Y_depths_1, Y_segmentations_1, output_depths_1, output_segmentations_1)
         return val_loss/((i+1)*self.config['General']['batch_size'])
 
     def save_model(self):
