@@ -86,7 +86,7 @@ class Trainer(object):
                 self.optimizer.step()
                 running_loss += loss.item()
                 if self.config['wandb']['enable']:
-                    wandb.log({"loss": loss.item()})
+                    wandb.log({"loss": loss.item()*self.config['General']['batch_size']})
                 pbar.set_postfix({'training_loss': running_loss/((i+1)*self.config['General']['batch_size'])})
             new_val_loss = self.run_eval(train_dataloader, val_dataloader)
 
@@ -118,9 +118,9 @@ class Trainer(object):
                 val_loss += loss.item()
                 pbar.set_postfix({'validation_loss': val_loss/((i+1)*self.config['General']['batch_size'])})
             if self.config['wandb']['enable']:
-                wandb.log({"val_loss": val_loss})
+                wandb.log({"val_loss": val_loss/((i+1)*self.config['General']['batch_size'])})
                 self.img_logger(X, Y_depths, Y_segmentations, output_depths, output_segmentations)
-        return val_loss
+        return val_loss/((i+1)*self.config['General']['batch_size'])
 
     def save_model(self):
         path_model = os.path.join(self.config['General']['path_model'], self.model.__class__.__name__)

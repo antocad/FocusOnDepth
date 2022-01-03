@@ -57,9 +57,9 @@ class AutoFocusDataset(Dataset):
         self.transform_image, self.transform_depth, self.transform_seg = get_transforms(config)
 
         # get p_flip from config
-        self.p_flip = config['Dataset']['transforms']['p_flip']
-        self.p_crop = config['Dataset']['transforms']['p_crop']
-        self.p_rot = config['Dataset']['transforms']['p_rot']
+        self.p_flip = config['Dataset']['transforms']['p_flip'] if split=='train' else 0
+        self.p_crop = config['Dataset']['transforms']['p_crop'] if split=='train' else 0
+        self.p_rot = config['Dataset']['transforms']['p_rot'] if split=='train' else 0
         self.resize = config['Dataset']['transforms']['resize']
 
     def __len__(self):
