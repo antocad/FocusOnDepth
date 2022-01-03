@@ -86,7 +86,7 @@ class Trainer(object):
                 self.optimizer.step()
                 running_loss += loss.item()
                 if self.config['wandb']['enable']:
-                    wandb.log({"loss": loss.item()*self.config['General']['batch_size']})
+                    wandb.log({"loss": running_loss/((i+1)*self.config['General']['batch_size']}))
                 pbar.set_postfix({'training_loss': running_loss/((i+1)*self.config['General']['batch_size'])})
             new_val_loss = self.run_eval(train_dataloader, val_dataloader)
 
@@ -130,7 +130,7 @@ class Trainer(object):
         print('Model saved at : {}'.format(path_model))
 
     def img_logger(self, X, Y_depths, Y_segmentations, output_depths, output_segmentations):
-        nb_to_show = self.config['wandb']['images_to_show'] if self.config['wandb']['images_to_show'] < len(X) else len(X)
+        nb_to_show = self.config['wandb']['images_to_show'] if self.config['wandb']['images_to_show'] <= len(X) else len(X)
         tmp = X[:nb_to_show].detach().cpu().numpy()
         imgs = (tmp - tmp.min()) / (tmp.max() - tmp.min())
         if output_depths != None:
