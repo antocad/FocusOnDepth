@@ -130,18 +130,19 @@ class Trainer(object):
         print('Model saved at : {}'.format(path_model))
 
     def img_logger(self, X, Y_depths, Y_segmentations, output_depths, output_segmentations):
-        tmp = X[:1].detach().cpu().numpy()
+        nb_to_show = self.config['wandb']['images_to_show'] if self.config['wandb']['images_to_show'] < len(X) else len(X)
+        tmp = X[:nb_to_show].detach().cpu().numpy()
         imgs = (tmp - tmp.min()) / (tmp.max() - tmp.min())
         if output_depths != None:
-            tmp = Y_depths[:1].unsqueeze(1).detach().cpu().numpy()
+            tmp = Y_depths[:nb_to_show].unsqueeze(1).detach().cpu().numpy()
             depth_truths = np.repeat(tmp, 3, axis=1)
-            tmp = output_depths[:1].unsqueeze(1).detach().cpu().numpy()
+            tmp = output_depths[:nb_to_show].unsqueeze(1).detach().cpu().numpy()
             tmp = np.repeat(tmp, 3, axis=1)
             depth_preds = (tmp - tmp.min()) / (tmp.max() - tmp.min() + 1e-8)
         if output_segmentations != None:
-            tmp = Y_segmentations[:1].unsqueeze(1).detach().cpu().numpy()
+            tmp = Y_segmentations[:nb_to_show].unsqueeze(1).detach().cpu().numpy()
             segmentation_truths = np.repeat(tmp, 3, axis=1).astype('float32')
-            tmp = torch.argmax(output_segmentations[:1], dim=1)
+            tmp = torch.argmax(output_segmentations[:nb_to_show], dim=1)
             tmp = tmp.unsqueeze(1).detach().cpu().numpy()
             tmp = np.repeat(tmp, 3, axis=1)
             segmentation_preds = tmp.astype('float32')
