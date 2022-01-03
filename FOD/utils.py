@@ -42,20 +42,25 @@ def get_transforms(config):
         transforms.ToTensor()
     ])
     transform_seg = transforms.Compose([
-        transforms.Resize((im_size, im_size), interpolation=Image.NEAREST),
+        transforms.Resize((im_size, im_size), interpolation=transforms.InterpolationMode.NEAREST),
         ToMask(config['Dataset']['classes']),
     ])
     return transform_image, transform_depth, transform_seg
 
 def get_losses(config):
-    loss_depth = None
-    loss_segmentation = None
-    if config['General']['loss_depth'] == 'mse':
-        loss_depth = nn.MSELoss()
-    elif config['General']['loss_depth'] == 'ssi':
-        loss_depth = ScaleAndShiftInvariantLoss()
-    if config['General']['loss_segmentation'] == 'ce':
-        loss_segmentation = nn.CrossEntropyLoss()
+    def NoneFunction(a, b):
+        return 0
+    loss_depth = NoneFunction
+    loss_segmentation = NoneFunction
+    type = config['General']['type']
+    if type == "full" or type=="depth":
+        if config['General']['loss_depth'] == 'mse':
+            loss_depth = nn.MSELoss()
+        elif config['General']['loss_depth'] == 'ssi':
+            loss_depth = ScaleAndShiftInvariantLoss()
+    if type == "full" or type=="segmentation":
+        if config['General']['loss_segmentation'] == 'ce':
+            loss_segmentation = nn.CrossEntropyLoss()
     return loss_depth, loss_segmentation
 
 def create_dir(directory):

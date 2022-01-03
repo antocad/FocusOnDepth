@@ -1,6 +1,6 @@
 # Focus On Depth - A single DPT encoder for AutoFocus application
 
-## Abstract 
+## Abstract
 
 
 > Recent works have shown that in the real world, humans
@@ -26,11 +26,11 @@ methods.
 - [x] Make the training script work
 - [x] Create the dataset with person segmentation and depth estimation
 - [x] Create a strong codebase for training
-- [ ] Add data augmentations
-- [ ] Make the code modulable with timm and the list of hooks
-- [ ] Add an option to select whether we want depth only or segmentation only or both
+- [x] Add data augmentations
+- [x] Make the code modulable with timm and the list of hooks
+- [x] Add an option to select whether we want depth only or segmentation only or both
 - [ ] Make 2 optimizers?
-- [ ] Create a strong code base for inference 
+- [ ] Create a strong code base for inference
 
 ## Requirements
 
@@ -40,8 +40,8 @@ Run: ``` pip install -r requirements.txt ```
 
 #### Build the dataset
 
-Our model is trained on a combination of 
-+ [inria movie 3d dataset](https://www.di.ens.fr/willow/research/stereoseg/). 
+Our model is trained on a combination of
++ [inria movie 3d dataset](https://www.di.ens.fr/willow/research/stereoseg/).
 + [NYU2 Dataset](https://cs.nyu.edu/~silberman/datasets/nyu_depth_v2.html)
 + [PoseTrack](https://posetrack.net/)
 
