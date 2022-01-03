@@ -142,7 +142,6 @@ class Trainer(object):
 
     def img_logger(self, X, Y_depths, Y_segmentations, output_depths, output_segmentations):
         nb_to_show = self.config['wandb']['images_to_show'] if self.config['wandb']['images_to_show'] <= len(X) else len(X)
-        print("NB TO SHOW =", nb_to_show, len(X), self.config['wandb']['images_to_show'])
         tmp = X[:nb_to_show].detach().cpu().numpy()
         imgs = (tmp - tmp.min()) / (tmp.max() - tmp.min())
         if output_depths != None:
