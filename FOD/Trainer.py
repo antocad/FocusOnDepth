@@ -85,7 +85,7 @@ class Trainer(object):
                 # step optimizer
                 self.optimizer.step()
                 running_loss += loss.item()
-                if self.config['wandb']['enable']:
+                if self.config['wandb']['enable'] and ((i % 50 == 0 and i>0) or i==len(train_dataloader)-1):
                     wandb.log({"loss": running_loss/((i+1)*self.config['General']['batch_size'])})
                 pbar.set_postfix({'training_loss': running_loss/((i+1)*self.config['General']['batch_size'])})
             new_val_loss = self.run_eval(train_dataloader, val_dataloader)
