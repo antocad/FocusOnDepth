@@ -15,7 +15,7 @@
         "resample_dim":256,
         "nhead":4,
         "path_model":"models",
-        "type":"segmentation",
+        "type":"depth",
         "hooks":[2, 5, 8, 11],
         "model_timm":"vit_base_patch16_384"
     },
