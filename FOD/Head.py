@@ -31,7 +31,7 @@ class HeadDepth(nn.Module):
         )
     def forward(self, x):
         x = self.head(x)
-        return x
+        return 1.0 - x
 
 class HeadSeg(nn.Module):
     def __init__(self, features, nclasses=2):
@@ -42,7 +42,6 @@ class HeadSeg(nn.Module):
             nn.Conv2d(features // 2, 32, kernel_size=3, stride=1, padding=1),
             nn.ReLU(),
             nn.Conv2d(32, nclasses, kernel_size=1, stride=1, padding=0)
-            #nn.Softmax(dim=1)
         )
     def forward(self, x):
         x = self.head(x)
