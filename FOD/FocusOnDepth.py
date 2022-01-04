@@ -9,8 +9,6 @@ from FOD.Reassemble import Reassemble
 from FOD.Fusion import Fusion
 from FOD.Head import HeadDepth, HeadSeg
 
-torch.manual_seed(0)
-
 class FocusOnDepth(nn.Module):
     def __init__(self,
                  image_size         = (3, 384, 384),
