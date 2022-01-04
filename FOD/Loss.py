@@ -124,25 +124,7 @@ class ScaleAndShiftInvariantLoss(nn.Module):
 
     def forward(self, prediction, target):
         #preprocessing
-
-        # print(target.shape, prediction.shape)
         mask = target > 0
-        # target[mask] = (target[mask] - target[mask].min()) / (target[mask].max() - target[mask].min()) * 9 + 1
-        # target[mask] = 10. / target[mask]
-        # target[~mask] = 0.
-
-        #mask2 = prediction > 0
-        # print(mask2.type(torch.float32).mean())
-        #prediction = (prediction - prediction.min()) / (prediction.max() - prediction.min() + 1e-8)
-        
-        #prediction[mask2] = 10. / prediction[mask2]
-        #prediction[~mask2] = 0.
-
-        # if printable:
-        #     print("******************************************************")
-        #     print(target.shape, target.mean().item(), target.max().item(), target.min().item())
-        #     print(prediction.shape, prediction.mean().item(), prediction.max().item(), prediction.min().item())
-        #     print("******************************************************")
 
         #calcul
         scale, shift = compute_scale_and_shift(prediction, target, mask)

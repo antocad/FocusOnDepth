@@ -146,11 +146,9 @@ class Trainer(object):
         if output_depths != None:
             tmp = Y_depths[:nb_to_show].unsqueeze(1).detach().cpu().numpy()
             depth_truths = np.repeat(tmp, 3, axis=1)
-
             tmp = output_depths[:nb_to_show].unsqueeze(1).detach().cpu().numpy()
             tmp = np.repeat(tmp, 3, axis=1)
-            depth_preds = tmp
-            #depth_preds = (tmp - tmp.min()) / (tmp.max() - tmp.min() + 1e-8)
+            depth_preds = 1-tmp
         if output_segmentations != None:
             tmp = Y_segmentations[:nb_to_show].unsqueeze(1).detach().cpu().numpy()
             segmentation_truths = np.repeat(tmp, 3, axis=1).astype('float32')

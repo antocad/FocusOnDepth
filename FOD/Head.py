@@ -31,7 +31,7 @@ class HeadDepth(nn.Module):
         )
     def forward(self, x):
         x = self.head(x)
-        return 1.0-x
+        return x
 
 class HeadSeg(nn.Module):
     def __init__(self, features, nclasses=2):
