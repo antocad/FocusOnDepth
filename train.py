@@ -10,7 +10,7 @@ from FOD.dataset import AutoFocusDataset
 with open('config.json', 'r') as f:
     config = json.load(f)
 np.random.seed(config['General']['seed'])
-torch.manual_seed(config['General']['seed'])
+
 list_data = config['Dataset']['paths']['list_datasets']
 
 ## train set
