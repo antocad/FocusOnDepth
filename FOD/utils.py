@@ -2,6 +2,7 @@ import os, errno
 import numpy as np
 import torch.nn as nn
 import torch.optim as optim
+from torch.optim.lr_scheduler import ReduceLROnPlateau
 
 from glob import glob
 from PIL import Image
@@ -78,7 +79,6 @@ def create_dir(directory):
 #     return optimizer
 
 def get_optimizer(config, net):
-
     if net.type_ == 'full':
         params_scratch = list(net.head_seg.parameters()) + list(net.head_depth.parameters())
     elif net.type_ == 'seg':
@@ -87,9 +87,12 @@ def get_optimizer(config, net):
         params_scratch = net.head_depth.parameters()
 
     if config['General']['optim'] == 'adam':
-        optimizer_backbone = optim.Adam(net.transformer_encoders.parameters(), lr=config['General']['lr_backbone']) 
+        optimizer_backbone = optim.Adam(net.transformer_encoders.parameters(), lr=config['General']['lr_backbone'])
         optimizer_scratch = optim.Adam(params_scratch, lr=config['General']['lr_scratch'])
     elif config['General']['optim'] == 'sgd':
-        optimizer_backbone = optim.SGD(net.transformer_encoders.parameters(), lr=config['General']['lr_backbone']) 
+        optimizer_backbone = optim.SGD(net.transformer_encoders.parameters(), lr=config['General']['lr_backbone'])
         optimizer_scratch = optim.SGD(params_scratch, lr=config['General']['lr_scratch'], momentum=config['General']['momentum'])
     return optimizer_backbone, optimizer_scratch
+
+def get_schedulers(optimizers):
+    return [ReduceLROnPlateau(optimizer) for optimizer in optimizers]

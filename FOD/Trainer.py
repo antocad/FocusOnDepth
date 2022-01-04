@@ -9,7 +9,7 @@ import torch.nn as nn
 from tqdm import tqdm
 from os import replace
 from numpy.core.numeric import Inf
-from FOD.utils import get_losses, get_optimizer, create_dir
+from FOD.utils import get_losses, get_optimizer, get_schedulers, create_dir
 from FOD.FocusOnDepth import FocusOnDepth
 
 import DPT.util.io
@@ -52,6 +52,7 @@ class Trainer(object):
 
         self.loss_depth, self.loss_segmentation = get_losses(config)
         self.optimizer_backbone, self.optimizer_scratch = get_optimizer(config, self.model)
+        self.schedulers = get_schedulers([self.optimizer_backbone, self.optimizer_scratch])
 
     def train(self, train_dataloader, val_dataloader):
         epochs = self.config['General']['epochs']
@@ -79,7 +80,7 @@ class Trainer(object):
                 # forward + backward + optimizer
                 output_depths, output_segmentations = self.model(X)
                 output_depths = output_depths.squeeze(1) if output_depths != None else None
-                
+
                 Y_depths = Y_depths.squeeze(1) #1xHxW -> HxW
                 Y_segmentations = Y_segmentations.squeeze(1) #1xHxW -> HxW
                 # get loss
@@ -88,15 +89,21 @@ class Trainer(object):
                 # step optimizer
                 self.optimizer_scratch.step()
                 self.optimizer_backbone.step()
+
                 running_loss += loss.item()
                 if self.config['wandb']['enable'] and ((i % 50 == 0 and i>0) or i==len(train_dataloader)-1):
                     wandb.log({"loss": running_loss/(i+1)})
                 pbar.set_postfix({'training_loss': running_loss/(i+1)})
+
             new_val_loss = self.run_eval(val_dataloader)
 
             if new_val_loss < val_loss:
                 self.save_model()
                 val_loss = new_val_loss
+
+            self.schedulers[0].step(new_val_loss)
+            self.schedulers[1].step(new_val_loss)
+
         print('Finished Training')
 
     def run_eval(self, val_dataloader):
