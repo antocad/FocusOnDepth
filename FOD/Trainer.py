@@ -88,18 +88,17 @@ class Trainer(object):
                 if self.config['wandb']['enable'] and ((i % 50 == 0 and i>0) or i==len(train_dataloader)-1):
                     wandb.log({"loss": running_loss/(i+1)})
                 pbar.set_postfix({'training_loss': running_loss/(i+1)})
-            new_val_loss = self.run_eval(train_dataloader, val_dataloader)
+            new_val_loss = self.run_eval(val_dataloader)
 
             if new_val_loss < val_loss:
                 self.save_model()
                 val_loss = new_val_loss
         print('Finished Training')
 
-    def run_eval(self, train_dataloader, val_dataloader):
+    def run_eval(self, val_dataloader):
         """
             Evaluate the model on the validation set and visualize some results
             on wandb
-            :- train_dataloader -: torch dataloader
             :- val_dataloader -: torch dataloader
         """
         val_loss = 0.
@@ -147,9 +146,11 @@ class Trainer(object):
         if output_depths != None:
             tmp = Y_depths[:nb_to_show].unsqueeze(1).detach().cpu().numpy()
             depth_truths = np.repeat(tmp, 3, axis=1)
+
             tmp = output_depths[:nb_to_show].unsqueeze(1).detach().cpu().numpy()
             tmp = np.repeat(tmp, 3, axis=1)
-            depth_preds = (tmp - tmp.min()) / (tmp.max() - tmp.min() + 1e-8)
+            depth_preds = tmp
+            #depth_preds = (tmp - tmp.min()) / (tmp.max() - tmp.min() + 1e-8)
         if output_segmentations != None:
             tmp = Y_segmentations[:nb_to_show].unsqueeze(1).detach().cpu().numpy()
             segmentation_truths = np.repeat(tmp, 3, axis=1).astype('float32')

@@ -133,7 +133,8 @@ class ScaleAndShiftInvariantLoss(nn.Module):
 
         #mask2 = prediction > 0
         # print(mask2.type(torch.float32).mean())
-        prediction = (prediction - prediction.min()) / (prediction.max() - prediction.min() + 1e-8)
+        #prediction = (prediction - prediction.min()) / (prediction.max() - prediction.min() + 1e-8)
+        
         #prediction[mask2] = 10. / prediction[mask2]
         #prediction[~mask2] = 0.
 
