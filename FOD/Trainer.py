@@ -51,14 +51,15 @@ class Trainer(object):
         # exit(0)
 
         self.loss_depth, self.loss_segmentation = get_losses(config)
-        self.optimizer = get_optimizer(config, self.model)
+        self.optimizer_backbone, self.optimizer_scratch = get_optimizer(config, self.model)
 
     def train(self, train_dataloader, val_dataloader):
         epochs = self.config['General']['epochs']
         if self.config['wandb']['enable']:
             wandb.init(project="FocusOnDepth", entity=self.config['wandb']['username'])
             wandb.config = {
-                "learning_rate": self.config['General']['lr'],
+                "learning_rate_backbone": self.config['General']['lr_backbone'],
+                "learning_rate_backbone": self.config['General']['lr_scratch'],
                 "epochs": epochs,
                 "batch_size": self.config['General']['batch_size']
             }
@@ -73,17 +74,20 @@ class Trainer(object):
                 # get the inputs; data is a list of [inputs, labels]
                 X, Y_depths, Y_segmentations = X.to(self.device), Y_depths.to(self.device), Y_segmentations.to(self.device)
                 # zero the parameter gradients
-                self.optimizer.zero_grad()
+                self.optimizer_backbone.zero_grad()
+                self.optimizer_scratch.zero_grad()
                 # forward + backward + optimizer
                 output_depths, output_segmentations = self.model(X)
                 output_depths = output_depths.squeeze(1) if output_depths != None else None
+                
                 Y_depths = Y_depths.squeeze(1) #1xHxW -> HxW
                 Y_segmentations = Y_segmentations.squeeze(1) #1xHxW -> HxW
                 # get loss
                 loss = self.loss_depth(output_depths, Y_depths) + self.loss_segmentation(output_segmentations, Y_segmentations)
                 loss.backward()
                 # step optimizer
-                self.optimizer.step()
+                self.optimizer_scratch.step()
+                self.optimizer_backbone.step()
                 running_loss += loss.item()
                 if self.config['wandb']['enable'] and ((i % 50 == 0 and i>0) or i==len(train_dataloader)-1):
                     wandb.log({"loss": running_loss/(i+1)})
@@ -136,7 +140,9 @@ class Trainer(object):
         path_model = os.path.join(self.config['General']['path_model'], self.model.__class__.__name__)
         create_dir(path_model)
         torch.save({'model_state_dict': self.model.state_dict(),
-                    'optimizer_state_dict': self.optimizer.state_dict()}, path_model+'.p')
+                    'optimizer_backbone_state_dict': self.optimizer_backbone.state_dict(),
+                    'optimizer_scratch_state_dict': self.optimizer_scratch.state_dict()
+                    }, path_model+'.p')
         print('Model saved at : {}'.format(path_model))
 
     def img_logger(self, X, Y_depths, Y_segmentations, output_depths, output_segmentations):

@@ -70,9 +70,26 @@ def create_dir(directory):
         if e.errno != errno.EEXIST:
             raise
 
+# def get_optimizer(config, net):
+#     if config['General']['optim'] == 'adam':
+#         optimizer = optim.Adam(net.parameters(), lr=config['General']['lr'])
+#     elif config['General']['optim'] == 'sgd':
+#         optimizer = optim.SGD(net.parameters(), lr=config['General']['lr'], momentum=config['General']['momentum'])
+#     return optimizer
+
 def get_optimizer(config, net):
+
+    if net.type_ == 'full':
+        params_scratch = list(net.head_seg.parameters()) + list(net.head_depth.parameters())
+    elif net.type_ == 'seg':
+        params_scratch = net.head_seg.parameters()
+    elif net.type_ == 'depth':
+        params_scratch = net.head_depth.parameters()
+
     if config['General']['optim'] == 'adam':
-        optimizer = optim.Adam(net.parameters(), lr=config['General']['lr'])
+        optimizer_backbone = optim.Adam(net.transformer_encoders.parameters(), lr=config['General']['lr_backbone']) 
+        optimizer_scratch = optim.Adam(params_scratch, lr=config['General']['lr_scratch'])
     elif config['General']['optim'] == 'sgd':
-        optimizer = optim.SGD(net.parameters(), lr=config['General']['lr'], momentum=config['General']['momentum'])
-    return optimizer
+        optimizer_backbone = optim.SGD(net.transformer_encoders.parameters(), lr=config['General']['lr_backbone']) 
+        optimizer_scratch = optim.SGD(params_scratch, lr=config['General']['lr_scratch'], momentum=config['General']['momentum'])
+    return optimizer_backbone, optimizer_scratch

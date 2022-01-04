@@ -31,6 +31,10 @@ methods.
 - [x] Add an option to select whether we want depth only or segmentation only or both
 - [ ] Make 2 optimizers?
 - [ ] Create a strong code base for inference
+- [ ] Why the predicted depth map is inverted?
+- [ ] Do we have to fix a seed for reproducibility?
+- [ ] Scheduler
+- [ ] Understand the impact of the transformation
 
 ## Requirements
 

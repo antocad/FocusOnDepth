@@ -4,7 +4,8 @@
         "seed":0,
         "epochs":20,
         "batch_size":1,
-        "lr":3e-4,
+        "lr_backbone":3e-5,
+        "lr_scratch":3e-3,
         "optim":"adam",
         "loss_depth":"ssi",
         "loss_segmentation":"ce",
@@ -34,9 +35,9 @@
             "ext_depths":".jpg"
         },
         "splits":{
-            "split_train":0.005,
-            "split_val":0.005,
-            "split_test":0.99
+            "split_train":0.5,
+            "split_val":0.5,
+            "split_test":0.0
         },
         "transforms":{
             "resize":384,
