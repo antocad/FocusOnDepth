@@ -1,6 +1,6 @@
 {
     "General":{
-        "device":"cuda",
+        "device":"cpu",
         "seed":0,
         "epochs":20,
         "batch_size":1,

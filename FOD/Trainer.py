@@ -60,7 +60,7 @@ class Trainer(object):
             wandb.init(project="FocusOnDepth", entity=self.config['wandb']['username'])
             wandb.config = {
                 "learning_rate_backbone": self.config['General']['lr_backbone'],
-                "learning_rate_backbone": self.config['General']['lr_scratch'],
+                "learning_rate_scratch": self.config['General']['lr_scratch'],
                 "epochs": epochs,
                 "batch_size": self.config['General']['batch_size']
             }
@@ -91,6 +91,15 @@ class Trainer(object):
                 self.optimizer_backbone.step()
 
                 running_loss += loss.item()
+                if np.isnan(running_loss):
+                    print('\n',
+                        X.min().item(), X.max().item(),'\n',
+                        Y_depths.min().item(), Y_depths.max().item(),'\n',
+                        output_depths.min().item(), output_depths.max().item(),'\n',
+                        loss.item(),
+                    )
+                    exit(0)
+
                 if self.config['wandb']['enable'] and ((i % 50 == 0 and i>0) or i==len(train_dataloader)-1):
                     wandb.log({"loss": running_loss/(i+1)})
                 pbar.set_postfix({'training_loss': running_loss/(i+1)})

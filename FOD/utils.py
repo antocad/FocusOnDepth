@@ -79,18 +79,17 @@ def create_dir(directory):
 #     return optimizer
 
 def get_optimizer(config, net):
-    if net.type_ == 'full':
-        params_scratch = list(net.head_seg.parameters()) + list(net.head_depth.parameters())
-    elif net.type_ == 'seg':
-        params_scratch = net.head_seg.parameters()
-    elif net.type_ == 'depth':
-        params_scratch = net.head_depth.parameters()
+    names = set([name.split('.')[0] for name, _ in net.named_modules()]) - set(['', 'transformer_encoders'])
+    params_backbone = net.transformer_encoders.parameters()
+    params_scratch = list()
+    for name in names:
+        params_scratch += list(eval("net."+name).parameters())
 
     if config['General']['optim'] == 'adam':
-        optimizer_backbone = optim.Adam(net.transformer_encoders.parameters(), lr=config['General']['lr_backbone'])
+        optimizer_backbone = optim.Adam(params_backbone, lr=config['General']['lr_backbone'])
         optimizer_scratch = optim.Adam(params_scratch, lr=config['General']['lr_scratch'])
     elif config['General']['optim'] == 'sgd':
-        optimizer_backbone = optim.SGD(net.transformer_encoders.parameters(), lr=config['General']['lr_backbone'])
+        optimizer_backbone = optim.SGD(params_backbone, lr=config['General']['lr_backbone'], momentum=config['General']['momentum'])
         optimizer_scratch = optim.SGD(params_scratch, lr=config['General']['lr_scratch'], momentum=config['General']['momentum'])
     return optimizer_backbone, optimizer_scratch
 
