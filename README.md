@@ -2,7 +2,7 @@
 
 ![pytorch](https://img.shields.io/badge/pytorch-v1.10-green.svg?style=plastic)
 
-![presentation](https://i.ibb.co/QYVFzhp/DL-FOD-POSTER-1.png)
+![presentation](https://i.ibb.co/rbySmMc/DL-FOD-POSTER-1.png)
 
 ## Abstract
 
