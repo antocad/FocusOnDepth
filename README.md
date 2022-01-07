@@ -1,7 +1,10 @@
 # Focus On Depth - A single DPT encoder for AutoFocus application
 
-## Abstract
+![pytorch](https://img.shields.io/badge/pytorch-v1.10-green.svg?style=plastic)
 
+![presentation](https://i.ibb.co/QYVFzhp/DL-FOD-POSTER-1.png)
+
+## Abstract
 
 > Recent works have shown that in the real world, humans
 rely on the image obtained by their left and right eyes in or-
