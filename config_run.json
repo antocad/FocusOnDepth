@@ -1,0 +1,35 @@
+{"General": 
+    {
+        "device": "cuda", 
+        "seed": 0, 
+        "epochs": 60, 
+        "batch_size": 8, 
+        "lr_backbone": 1e-05, 
+        "lr_scratch": 0.0003, 
+        "optim": "adam", 
+        "loss_depth": "ssi", 
+        "loss_segmentation": "ce", 
+        "momentum": 0.9, 
+        "patch_size": 16, 
+        "emb_dim": 768, 
+        "read": "projection", 
+        "resample_dim": 256, 
+        "nhead": 4, 
+        "path_model": "models", 
+        "type": "full", 
+        "hooks": [2, 5, 8, 11], 
+        "model_timm": "vit_base_patch16_384",
+        "path_predicted_images":"output"
+    }, 
+    "Dataset": {
+        "paths": {
+            "path_dataset": "../../input", 
+            "list_datasets": ["inria-fod", "nyuv2-fod/nyuv2", "posetrack-fod"], 
+            "path_images": "images", "path_segmentations": "segmentations", "path_depths": "depths", "model_dpt": "./DPT/weights/dpt_large-midas-2f21e586.pt"}, 
+            "extensions": {"ext_images": ".jpg", "ext_segmentations": ".png", "ext_depths": ".jpg"}, 
+            "splits": {"split_train": 0.5, "split_val": 0.2, "split_test": 0.3}, 
+            "transforms": {"resize": 384, "p_flip": 0.5, "p_crop": 0.3, "p_rot": 0.2}, 
+            "classes": {"1": {"name": "person", "color": [150, 5, 61]}}
+    }, 
+    "wandb": {"enable": true, "username": "younesbelkada", "images_to_show": 4, "im_h": 540, "im_w": 980}
+}

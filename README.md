@@ -1,4 +1,4 @@
-# Focus On Depth - A single DPT encoder for AutoFocus application
+# Focus On Depth - A single DPT encoder for AutoFocus application and Dense Prediction Tasks
 
 ![pytorch](https://img.shields.io/badge/pytorch-v1.10-green.svg?style=plastic)
 
@@ -33,30 +33,52 @@ methods.
 - [x] Make the code modulable with timm and the list of hooks
 - [x] Add an option to select whether we want depth only or segmentation only or both
 - [x] Make 2 optimizers?
-- [ ] Create a strong code base for inference
-- [ ] Why the predicted depth map is inverted?
-- [ ] Do we have to fix a seed for reproducibility?
+- [x] Do we have to fix a seed for reproducibility?
 - [x] Scheduler
+- [x] Create a strong code base for inference
+- [ ] Training wiki
+- [ ] Why the predicted depth map is inverted?
 - [ ] Understand the impact of the transformation
+- [ ] Make our training data opensource
+- [ ] Push the model into HuggingFace?
 
 ## Requirements
 
 Run: ``` pip install -r requirements.txt ```
 
-### Training
+## Run our pre-trained model
 
-#### Build the dataset
+### Model zoo
+
+Get the links of the following models:
+
++ [```vit_base_patch16_384```](https://drive.google.com/file/d/1Q7I777FW_dz5p5UlMsD6aktWQ1eyR1vN/view?usp=sharing)
++ Other models coming soon...
+
+And put the ```.p``` file into the directory ```models/```
+
+### Run the model
+
+Put your input images (that have to be ```.png``` or ```.jpg```) into the ```input/``` folder. Then, just run ```python run.py``` and you should get the depth maps as well as the segmentation masks in the ```output/``` folder.
+
+*TO DO:* Explain how to update the ```config_run.json``` according to the pre-trained model.
+
+## Training
+
+### Build the dataset
 
 Our model is trained on a combination of
 + [inria movie 3d dataset](https://www.di.ens.fr/willow/research/stereoseg/).
 + [NYU2 Dataset](https://cs.nyu.edu/~silberman/datasets/nyu_depth_v2.html)
 + [PoseTrack](https://posetrack.net/)
 
-##### Inria 3d Movie Dataset
+### Inria 3d Movie Dataset
 
 1. Download the disparity video frames directly from [here](https://www.di.ens.fr/willow/research/stereoseg/dataset/inria_stereo_dataset_video_segmentation_disparity.tar.gz).
 2. Get the segmentation masks from ...
 
-##### NYU2 Dataset
+### NYU2 Dataset
 
 1. Download the labeled dataset directly from [here](http://horatio.cs.nyu.edu/mit/silberman/nyu_depth_v2/nyu_depth_v2_labeled.mat).
+
+

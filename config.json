@@ -18,7 +18,8 @@
         "path_model":"models",
         "type":"depth",
         "hooks":[2, 5, 8, 11],
-        "model_timm":"vit_base_patch16_384"
+        "model_timm":"vit_base_patch16_384",
+        "path_predicted_images":"output"
     },
     "Dataset":{
         "paths":{
