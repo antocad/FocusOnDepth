@@ -12,11 +12,6 @@ from numpy.core.numeric import Inf
 from FOD.utils import get_losses, get_optimizer, get_schedulers, create_dir
 from FOD.FocusOnDepth import FocusOnDepth
 
-import DPT.util.io
-from DPT.dpt.models import DPTDepthModel
-from DPT.dpt.midas_net import MidasNet_large
-from DPT.dpt.transforms import Resize, NormalizeImage, PrepareForNet
-
 class Trainer(object):
     def __init__(self, config):
         super().__init__()
@@ -38,13 +33,6 @@ class Trainer(object):
                     model_timm  =   config['General']['model_timm'],
                     type        =   self.type,
         )
-
-        # self.model = DPTDepthModel(
-        #     path=config['Dataset']['paths']['model_dpt'],
-        #     backbone="vitl16_384",
-        #     non_negative=True,
-        #     enable_attention_hooks=False,
-        # )
 
         self.model.to(self.device)
         # print(self.model)

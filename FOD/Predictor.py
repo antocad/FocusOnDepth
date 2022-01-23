@@ -7,7 +7,6 @@ from torchvision import transforms
 from scipy.ndimage.filters import gaussian_filter
 
 from PIL import Image
-from torch._C import _set_print_stack_traces_on_fatal_signal
 
 from FOD.FocusOnDepth import FocusOnDepth
 from FOD.utils import create_dir
@@ -47,7 +46,7 @@ class Predictor(object):
         ])
         self.output_dir = self.config['General']['path_predicted_images']
         create_dir(self.output_dir)
-    
+
     def run(self):
         with torch.no_grad():
             for images in self.input_images:
@@ -60,7 +59,7 @@ class Predictor(object):
 
                 output_segmentation = transforms.ToPILImage()(output_segmentation.squeeze(0).argmax(dim=0).float()).resize(original_size, resample=Image.NEAREST)
                 output_depth = transforms.ToPILImage()(output_depth.squeeze(0)).resize(original_size, resample=Image.BICUBIC)
-                
+
                 path_dir_segmentation = os.path.join(self.output_dir, 'segmentations')
                 path_dir_depths = os.path.join(self.output_dir, 'depths')
                 create_dir(path_dir_segmentation)
@@ -94,8 +93,3 @@ class Predictor(object):
                 # final_image = cv2.addWeighted(region_not_to_blur.astype(np.uint8), 0.5, blurred.astype(np.uint8), 0.5, 0)
                 # final_image = Image.fromarray((final_image).astype(np.uint8))
                 # final_image.save(os.path.join(self.output_dir, os.path.basename(images)))
-
-                
-
-
-
