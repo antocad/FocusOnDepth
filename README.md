@@ -63,25 +63,11 @@ Our model is trained on a combination of
 + [NYU2 Dataset](https://cs.nyu.edu/~silberman/datasets/nyu_depth_v2.html)
 + [PoseTrack](https://posetrack.net/)
 
-Provide the kaggle link for each dataset!
-
-
-#### Inria 3d Movie Dataset
-
-1. Download the disparity video frames directly from [here](https://www.di.ens.fr/willow/research/stereoseg/dataset/inria_stereo_dataset_video_segmentation_disparity.tar.gz).
-2. Get the segmentation masks from ...
-
-#### NYU2 Dataset
-
-1. Download the labeled dataset directly from [here](http://horatio.cs.nyu.edu/mit/silberman/nyu_depth_v2/nyu_depth_v2_labeled.mat).
-
+TODO: Provide the kaggle link for each dataset !
 
 ### Configure ```config.json```
 
-Please refer to our [training wiki]() to understand how to modify the config file to run a training.
+Please refer to our [training wiki](https://github.com/antocad/FocusOnDepth/wiki/Training-Wiki) to understand how to modify the config file to run a training.
 
 ### Run the training script
 After that, you can simply run the training script: ```python train.py```
-
-
-
