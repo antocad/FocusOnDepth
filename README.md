@@ -10,6 +10,8 @@
   <img src="images/pull_figure.png"/>
 </p>
 
+> Input image taken from: https://koboguide.com/how-to-improve-portrait-photography/
+
 ## Abstract
 
 > Recent works have shown that in the real world, humans
