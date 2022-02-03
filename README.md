@@ -61,11 +61,9 @@ Put your input images (that have to be ```.png``` or ```.jpg```) into the ```inp
 ### :wrench: Build the dataset
 
 Our model is trained on a combination of
-+ [inria movie 3d dataset](https://www.di.ens.fr/willow/research/stereoseg/).
-+ [NYU2 Dataset](https://cs.nyu.edu/~silberman/datasets/nyu_depth_v2.html)
-+ [PoseTrack](https://posetrack.net/)
-
-TODO: Provide the kaggle link for each dataset !
++ [inria movie 3d dataset](https://www.di.ens.fr/willow/research/stereoseg/) | [view on Kaggle](https://www.kaggle.com/antocad/inria-fod/)
++ [NYU2 Dataset](https://cs.nyu.edu/~silberman/datasets/nyu_depth_v2.html) | [view on Kaggle](https://www.kaggle.com/antocad/nyuv2-fod)
++ [PoseTrack](https://posetrack.net/) | [view on Kaggle](https://www.kaggle.com/antocad/posetrack-fod)
 
 ### Configure ```config.json```
 
