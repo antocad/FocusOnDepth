@@ -1,8 +1,14 @@
 # Focus On Depth - A single DPT encoder for AutoFocus application and Dense Prediction Tasks
 
 ![pytorch](https://img.shields.io/badge/pytorch-v1.10-green.svg?style=plastic)
+![wandb](https://img.shields.io/badge/wandb-v0.12.10-blue.svg?style=plastic)
+![scipy](https://img.shields.io/badge/scipy-v1.7.3-orange.svg?style=plastic)
 
 <!-- ![presentation](https://i.ibb.co/rbySmMc/DL-FOD-POSTER-1.png) -->
+
+<p align="center">
+  <img src="images/pull_figure.png"/>
+</p>
 
 ## Abstract
 
@@ -24,38 +30,41 @@ and size of objects of interests, and their physical properties
 humans and will give qualitative comparison across other
 methods.
 
-<!--
-## TO DOs
 
-- [x] Make the training script work
-- [x] Create the dataset with person segmentation and depth estimation
-- [x] Create a strong codebase for training
-- [x] Add data augmentations
-- [x] Make the code modulable with timm and the list of hooks
-- [x] Add an option to select whether we want depth only or segmentation only or both
-- [x] Make 2 optimizers?
-- [x] Do we have to fix a seed for reproducibility?
-- [x] Scheduler
-- [x] Create a strong code base for inference
-- [ ] Training wiki
-- [ ] Why the predicted depth map is inverted?
-- [ ] Understand the impact of the transformation
-- [ ] Make our training data opensource
-- [ ] Push the model into HuggingFace?
--->
-
-## Requirements
+## :pushpin: Requirements
 
 Run: ``` pip install -r requirements.txt ```
 
-## Training
+## :rocket: Running the model
 
-### Build the dataset
+You can first download one of the models from the model zoo:
+
+### :bank: Model zoo
+
+Get the links of the following models:
+
++ [```vit_base_patch16_384```](https://drive.google.com/file/d/1Q7I777FW_dz5p5UlMsD6aktWQ1eyR1vN/view?usp=sharing)
++ Other models coming soon...
+
+And put the ```.p``` file into the directory ```models/```. After that, you need to update the ```config_run.json``` according to the pre-trained model you have chosen to run the predictions.
+
+### :dart: Run a prediction
+
+Put your input images (that have to be ```.png``` or ```.jpg```) into the ```input/``` folder. Then, just run ```python run.py``` and you should get the depth maps as well as the segmentation masks in the ```output/``` folder.
+
+
+
+## :hammer: Training
+
+### :wrench: Build the dataset
 
 Our model is trained on a combination of
 + [inria movie 3d dataset](https://www.di.ens.fr/willow/research/stereoseg/).
 + [NYU2 Dataset](https://cs.nyu.edu/~silberman/datasets/nyu_depth_v2.html)
 + [PoseTrack](https://posetrack.net/)
+
+Provide the kaggle link for each dataset!
+
 
 #### Inria 3d Movie Dataset
 
@@ -68,23 +77,11 @@ Our model is trained on a combination of
 
 
 ### Configure ```config.json```
-You can check the wiki to have a good documentation about all possible values in each field.
+
+Please refer to our [training wiki]() to understand how to modify the config file to run a training.
 
 ### Run the training script
 After that, you can simply run the training script: ```python train.py```
 
-## Testing on our pre-trained model (or on your own trained weights)
-Put your input images (that have to be ```.png``` or ```.jpg```) into the ```input/``` folder. Then, just run ```python run.py``` and you should get the depth maps as well as the segmentation masks in the ```output/``` folder.
-
-After that, you need to update the ```config_run.json``` according to the pre-trained model.
-
-### Model zoo
-
-Get the links of the following models:
-
-+ [```vit_base_patch16_384```](https://drive.google.com/file/d/1Q7I777FW_dz5p5UlMsD6aktWQ1eyR1vN/view?usp=sharing)
-+ Other models coming soon...
-
-And put the ```.p``` file into the directory ```models/```
 
 
