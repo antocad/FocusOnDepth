@@ -64,15 +64,18 @@ Our model is trained on a combination of
 + [NYU2 Dataset](https://cs.nyu.edu/~silberman/datasets/nyu_depth_v2.html) | [view on Kaggle](https://www.kaggle.com/antocad/nyuv2-fod)
 + [PoseTrack](https://posetrack.net/) | [view on Kaggle](https://www.kaggle.com/antocad/posetrack-fod)
 
-### Configure ```config.json```
+### :pencil: Configure ```config.json```
 
 Please refer to our [training wiki](https://github.com/antocad/FocusOnDepth/wiki/Training-Wiki) to understand how to modify the config file to run a training.
 
-### Run the training script
+### :nut_and_bolt: Run the training script
 After that, you can simply run the training script: ```python train.py```
 
 
-## Citations
+## :scroll: Citations
+
+Our work is based on the work from Ranflt et al. please do not forget to cite their work! :) 
+
 ```
 @article{DPT,
   author    = {Ren{\'{e}} Ranftl and
