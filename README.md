@@ -55,7 +55,6 @@ And put the ```.p``` file into the directory ```models/```. After that, you need
 Put your input images (that have to be ```.png``` or ```.jpg```) into the ```input/``` folder. Then, just run ```python run.py``` and you should get the depth maps as well as the segmentation masks in the ```output/``` folder.
 
 
-
 ## :hammer: Training
 
 ### :wrench: Build the dataset
