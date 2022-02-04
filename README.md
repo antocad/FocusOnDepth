@@ -71,3 +71,23 @@ Please refer to our [training wiki](https://github.com/antocad/FocusOnDepth/wiki
 
 ### Run the training script
 After that, you can simply run the training script: ```python train.py```
+
+
+## Citations
+```
+@article{DPT,
+  author    = {Ren{\'{e}} Ranftl and
+               Alexey Bochkovskiy and
+               Vladlen Koltun},
+  title     = {Vision Transformers for Dense Prediction},
+  journal   = {CoRR},
+  volume    = {abs/2103.13413},
+  year      = {2021},
+  url       = {https://arxiv.org/abs/2103.13413},
+  eprinttype = {arXiv},
+  eprint    = {2103.13413},
+  timestamp = {Wed, 07 Apr 2021 15:31:46 +0200},
+  biburl    = {https://dblp.org/rec/journals/corr/abs-2103-13413.bib},
+  bibsource = {dblp computer science bibliography, https://dblp.org}
+}
+```
