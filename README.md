@@ -45,7 +45,7 @@ You can first download one of the models from the model zoo:
 
 Get the links of the following models:
 
-+ [```vit_base_patch16_384```](https://drive.google.com/file/d/1Q7I777FW_dz5p5UlMsD6aktWQ1eyR1vN/view?usp=sharing)
++ [```FocusOnDepth_vit_base_patch16_384.p```](https://drive.google.com/file/d/1Q7I777FW_dz5p5UlMsD6aktWQ1eyR1vN/view?usp=sharing)
 + Other models coming soon...
 
 And put the ```.p``` file into the directory ```models/```. After that, you need to update the ```config_run.json``` according to the pre-trained model you have chosen to run the predictions.
