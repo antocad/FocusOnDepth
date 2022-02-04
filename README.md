@@ -75,7 +75,7 @@ After that, you can simply run the training script: ```python train.py```
 ## :scroll: Citations
 
 Our work is based on the work from Ranflt et al. please do not forget to cite their work! :) 
-You can also check our [report](https://github.com/antocad/FocusOnDepth/blob/master/pdf/FocusOnDepth.pdf) if you need more details.
+You can also check our [report](https://github.com/antocad/FocusOnDepth/blob/master/FocusOnDepth.pdf) if you need more details.
 
 ```
 @article{DPT,
