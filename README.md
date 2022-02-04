@@ -10,7 +10,7 @@
   <img src="images/pull_figure.png"/>
 </p>
 
-> Input image taken from: https://koboguide.com/how-to-improve-portrait-photography/
+<!-- > Input image taken from: https://koboguide.com/how-to-improve-portrait-photography/ -->
 
 ## Abstract
 
