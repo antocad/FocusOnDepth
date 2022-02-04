@@ -10,7 +10,7 @@
   <img src="images/pull_figure.png"/>
 </p>
 
-> Input image taken from: https://koboguide.com/how-to-improve-portrait-photography/
+<!-- > Input image taken from: https://koboguide.com/how-to-improve-portrait-photography/ -->
 
 ## Abstract
 
@@ -45,7 +45,7 @@ You can first download one of the models from the model zoo:
 
 Get the links of the following models:
 
-+ [```vit_base_patch16_384```](https://drive.google.com/file/d/1Q7I777FW_dz5p5UlMsD6aktWQ1eyR1vN/view?usp=sharing)
++ [```FocusOnDepth_vit_base_patch16_384.p```](https://drive.google.com/file/d/1Q7I777FW_dz5p5UlMsD6aktWQ1eyR1vN/view?usp=sharing)
 + Other models coming soon...
 
 And put the ```.p``` file into the directory ```models/```. After that, you need to update the ```config_run.json``` according to the pre-trained model you have chosen to run the predictions.
@@ -70,3 +70,23 @@ Please refer to our [training wiki](https://github.com/antocad/FocusOnDepth/wiki
 
 ### Run the training script
 After that, you can simply run the training script: ```python train.py```
+
+
+## Citations
+```
+@article{DPT,
+  author    = {Ren{\'{e}} Ranftl and
+               Alexey Bochkovskiy and
+               Vladlen Koltun},
+  title     = {Vision Transformers for Dense Prediction},
+  journal   = {CoRR},
+  volume    = {abs/2103.13413},
+  year      = {2021},
+  url       = {https://arxiv.org/abs/2103.13413},
+  eprinttype = {arXiv},
+  eprint    = {2103.13413},
+  timestamp = {Wed, 07 Apr 2021 15:31:46 +0200},
+  biburl    = {https://dblp.org/rec/journals/corr/abs-2103-13413.bib},
+  bibsource = {dblp computer science bibliography, https://dblp.org}
+}
+```
