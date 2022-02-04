@@ -14,10 +14,9 @@
 
 ## Abstract
 
-> Recent works have shown that in the real world, humans
-rely on the image obtained by their left and right eyes in or-
-der to estimate depths of surrounding objects. Thus, depth
-estimation is a classic task in computer vision, which is of
+<!-- Recent works have shown that in the real world, humans
+rely on the image obtained by their left and right eyes in order to estimate depths of surrounding objects. Thus, -->
+> Depth estimation is a classic task in computer vision, which is of
 great significance for many applications such as augmented
 reality, target tracking and autonomous driving. We firstly
 summarize the deep learning models for monocular depth
@@ -25,8 +24,7 @@ estimation. Secondly, we will implement a recent Vision
 Transformers based architecture for this task. We will seek
 to improve it by adding a segmentation head in order to
 perform multi-task learning using a customly built dataset.
-Thirdly, we will implement our model for in-the-wild im-
-ages (i.e. with no control on the environment, the distance
+Thirdly, we will implement our model for in-the-wild images (i.e. without control on the environment, the distance
 and size of objects of interests, and their physical properties
 (rotation, dynamics, etc.)) for Auto-focus application on
 humans and will give qualitative comparison across other
