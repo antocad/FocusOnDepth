@@ -92,3 +92,5 @@ You can also check our [report](https://github.com/antocad/FocusOnDepth/blob/mas
   bibsource = {dblp computer science bibliography, https://dblp.org}
 }
 ```
+
+[![Stargazers repo roster for @antocad/FocusOnDepth](https://reporoster.com/stars/antocad/FocusOnDepth)](https://github.com/antocad/FocusOnDepth/stargazers)
