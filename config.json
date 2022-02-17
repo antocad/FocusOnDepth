@@ -1,34 +1,32 @@
 {
     "General":{
-        "device":"cpu",
-        "seed":0,
-        "epochs":20,
-        "batch_size":1,
+        "device":"cuda",
+        "type":"full",
+        "model_timm":"vit_base_patch16_384",
+        "emb_dim":768,
+        "hooks":[2, 5, 8, 11],
+        "read":"projection",
+        "resample_dim":256,
+        "optim":"adam",
         "lr_backbone":1e-5,
         "lr_scratch":3e-4,
-        "optim":"adam",
         "loss_depth":"ssi",
         "loss_segmentation":"ce",
         "momentum":0.9,
-        "patch_size":16,
-        "emb_dim":768,
-        "read":"projection",
-        "resample_dim":256,
-        "nhead":4,
+        "epochs":20,
+        "batch_size":1,
         "path_model":"models",
-        "type":"depth",
-        "hooks":[2, 5, 8, 11],
-        "model_timm":"vit_base_patch16_384",
-        "path_predicted_images":"output"
+        "path_predicted_images":"output",
+        "seed":0,
+        "patch_size":16
     },
     "Dataset":{
         "paths":{
             "path_dataset":"./datasets",
-            "list_datasets":["inria"],
+            "list_datasets":["inria", "nyuv2", "posetrack"],
             "path_images":"images",
             "path_segmentations":"segmentations",
-            "path_depths":"depths",
-            "model_dpt":"./DPT/weights/dpt_large-midas-2f21e586.pt"
+            "path_depths":"depths"
         },
         "extensions":{
             "ext_images":".jpg",
@@ -36,9 +34,9 @@
             "ext_depths":".jpg"
         },
         "splits":{
-            "split_train":0.01,
-            "split_val":0.01,
-            "split_test":0.98
+            "split_train":0.6,
+            "split_val":0.2,
+            "split_test":0.2
         },
         "transforms":{
             "resize":384,

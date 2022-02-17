@@ -23,15 +23,14 @@ class Trainer(object):
         resize = config['Dataset']['transforms']['resize']
         self.model = FocusOnDepth(
                     image_size  =   (3,resize,resize),
-                    patch_size  =   config['General']['patch_size'],
                     emb_dim     =   config['General']['emb_dim'],
                     resample_dim=   config['General']['resample_dim'],
                     read        =   config['General']['read'],
-                    nhead       =   config['General']['nhead'],
                     nclasses    =   len(config['Dataset']['classes']) + 1,
                     hooks       =   config['General']['hooks'],
                     model_timm  =   config['General']['model_timm'],
                     type        =   self.type,
+                    patch_size  =   config['General']['patch_size'],
         )
 
         self.model.to(self.device)

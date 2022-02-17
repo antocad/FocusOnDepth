@@ -21,7 +21,6 @@ class FocusOnDepth(nn.Module):
                  num_layers_encoder = 24,
                  hooks              = [5, 11, 17, 23],
                  reassemble_s       = [4, 8, 16, 32],
-                 nhead              = 16,
                  transformer_dropout= 0,
                  nclasses           = 2,
                  type               = "full",
@@ -38,10 +37,10 @@ class FocusOnDepth(nn.Module):
         super().__init__()
 
         #Splitting img into patches
-        channels, image_height, image_width = image_size
-        assert image_height % patch_size == 0 and image_width % patch_size == 0, 'Image dimensions must be divisible by the patch size.'
-        num_patches = (image_height // patch_size) * (image_width // patch_size)
-        patch_dim = channels * patch_size * patch_size
+        # channels, image_height, image_width = image_size
+        # assert image_height % patch_size == 0 and image_width % patch_size == 0, 'Image dimensions must be divisible by the patch size.'
+        # num_patches = (image_height // patch_size) * (image_width // patch_size)
+        # patch_dim = channels * patch_size * patch_size
         # self.to_patch_embedding = nn.Sequential(
         #     Rearrange('b c (h p1) (w p2) -> b (h w) (p1 p2 c)', p1=patch_size, p2=patch_size),
         #     nn.Linear(patch_dim, emb_dim),
