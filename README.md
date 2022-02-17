@@ -46,7 +46,7 @@ Get the links of the following models:
 + [```FocusOnDepth_vit_base_patch16_384.p```](https://drive.google.com/file/d/1Q7I777FW_dz5p5UlMsD6aktWQ1eyR1vN/view?usp=sharing)
 + Other models coming soon...
 
-And put the ```.p``` file into the directory ```models/```. After that, you need to update the ```config.json``` according to the pre-trained model you have chosen to run the predictions (this means that if you load a depth-only model, then you have to set ```type``` to ```depth``` for example ...).
+And put the ```.p``` file into the directory ```models/```. After that, you need to update the ```config.json``` ([Tutorial here](https://github.com/antocad/FocusOnDepth/wiki/Config-Wiki)) according to the pre-trained model you have chosen to run the predictions (this means that if you load a depth-only model, then you have to set ```type``` to ```depth``` for example ...).
 
 ### :dart: Run a prediction
 
@@ -64,7 +64,7 @@ Our model is trained on a combination of
 
 ### :pencil: Configure ```config.json```
 
-Please refer to our [training wiki](https://github.com/antocad/FocusOnDepth/wiki/Training-Wiki) to understand how to modify the config file to run a training.
+Please refer to our [config wiki](https://github.com/antocad/FocusOnDepth/wiki/Config-Wiki) to understand how to modify the config file to run a training.
 
 ### :nut_and_bolt: Run the training script
 After that, you can simply run the training script: ```python train.py```
