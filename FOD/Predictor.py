@@ -57,7 +57,7 @@ class Predictor(object):
                 output_depth = 1-output_depth
 
                 output_segmentation = transforms.ToPILImage()(output_segmentation.squeeze(0).argmax(dim=0).float()).resize(original_size, resample=Image.NEAREST)
-                output_depth = transforms.ToPILImage()(output_depth.squeeze(0)).resize(original_size, resample=Image.BICUBIC)
+                output_depth = transforms.ToPILImage()(output_depth.squeeze(0).float()).resize(original_size, resample=Image.BICUBIC)
 
                 path_dir_segmentation = os.path.join(self.output_dir, 'segmentations')
                 path_dir_depths = os.path.join(self.output_dir, 'depths')
