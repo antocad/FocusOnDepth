@@ -3,10 +3,11 @@ import torch
 import matplotlib.pyplot as plt
 import numpy as np
 import cv2
-from torchvision import transforms
+
 from scipy.ndimage.filters import gaussian_filter
 
 from PIL import Image
+from tqdm import tqdm
 
 from FOD.FocusOnDepth import FocusOnDepth
 from FOD.utils import create_dir
@@ -14,8 +15,7 @@ from FOD.dataset import show
 
 
 class Predictor(object):
-    def __init__(self, config, input_images):
-        self.input_images = input_images
+    def __init__(self, config):
         self.config = config
         self.type = self.config['General']['type']
 
@@ -33,40 +33,29 @@ class Predictor(object):
                     type        =   self.type,
                     patch_size  =   config['General']['patch_size'],
         )
+        self.model.to(self.device)
         path_model = os.path.join(config['General']['path_model'], 'FocusOnDepth_{}.p'.format(config['General']['model_timm']))
         self.model.load_state_dict(
             torch.load(path_model, map_location=self.device)['model_state_dict']
         )
         self.model.eval()
-        self.transform_image = transforms.Compose([
-            transforms.Resize((resize, resize)),
-            transforms.ToTensor(),
-            transforms.Normalize(mean=[0.5, 0.5, 0.5], std=[0.5, 0.5, 0.5])
-        ])
         self.output_dir = self.config['General']['path_predicted_images']
         create_dir(self.output_dir)
+        self.path_dir_segmentation = os.path.join(self.output_dir, 'segmentations')
+        create_dir(self.path_dir_segmentation)
 
-    def run(self):
+    def run(self, test_dataloader):
         with torch.no_grad():
-            for images in self.input_images:
-                pil_im = Image.open(images)
-                original_size = pil_im.size
-
-                tensor_im = self.transform_image(pil_im).unsqueeze(0)
-                output_depth, output_segmentation = self.model(tensor_im)
-                output_depth = 1-output_depth
-
-                output_segmentation = transforms.ToPILImage()(output_segmentation.squeeze(0).argmax(dim=0).float()).resize(original_size, resample=Image.NEAREST)
-                output_depth = transforms.ToPILImage()(output_depth.squeeze(0).float()).resize(original_size, resample=Image.BICUBIC)
-
-                path_dir_segmentation = os.path.join(self.output_dir, 'segmentations')
-                path_dir_depths = os.path.join(self.output_dir, 'depths')
-                create_dir(path_dir_segmentation)
-                output_segmentation.save(os.path.join(path_dir_segmentation, os.path.basename(images)))
-
-                path_dir_depths = os.path.join(self.output_dir, 'depths')
-                create_dir(path_dir_depths)
-                output_depth.save(os.path.join(path_dir_depths, os.path.basename(images)))
+            for images, names in tqdm(test_dataloader): #on load des batchs d'images
+                images = images.to(self.device)
+                _, output_segmentations = self.model(images)
+                for i in range(len(output_segmentations)):
+                    seg = output_segmentations[i].squeeze(0).argmax(dim=0).float().cpu().numpy()
+                    seg = np.stack((seg,)*3, axis=-1)
+                    seg = Image.fromarray(np.uint8(seg))
+                    # seg = seg.resize(original_size, resample=Image.NEAREST)
+                    seg.save(os.path.join(self.path_dir_segmentation,
+                             os.path.basename(names[i])))
 
                 ## TO DO: Apply AutoFocus
 

@@ -4,7 +4,6 @@ DPT/weights/*.pt
 *.pyc
 *.pyc
 wandb/*
-*.png
 *.jpg
 *.right
 DPT/util/__pycache__/*.pyc

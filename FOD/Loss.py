@@ -6,75 +6,75 @@ def compute_scale_and_shift(prediction, target, mask):
     a_00 = torch.sum(mask * prediction * prediction, (1, 2))
     a_01 = torch.sum(mask * prediction, (1, 2))
     a_11 = torch.sum(mask, (1, 2))
-
     # right hand side: b = [b_0, b_1]
     b_0 = torch.sum(mask * prediction * target, (1, 2))
     b_1 = torch.sum(mask * target, (1, 2))
-
     # solution: x = A^-1 . b = [[a_11, -a_01], [-a_10, a_00]] / (a_00 * a_11 - a_01 * a_10) . b
     x_0 = torch.zeros_like(b_0)
     x_1 = torch.zeros_like(b_1)
-
     det = a_00 * a_11 - a_01 * a_01
     valid = det.nonzero()
-
     x_0[valid] = (a_11[valid] * b_0[valid] - a_01[valid] * b_1[valid]) / det[valid]
     x_1[valid] = (-a_01[valid] * b_0[valid] + a_00[valid] * b_1[valid]) / det[valid]
-
     return x_0, x_1
-
 
 def reduction_batch_based(image_loss, M):
     # average of all valid pixels of the batch
-
     # avoid division by 0 (if sum(M) = sum(sum(mask)) = 0: sum(image_loss) = 0)
     divisor = torch.sum(M)
-
     if divisor == 0:
         return 0
     else:
         return torch.sum(image_loss) / divisor
 
-
 def reduction_image_based(image_loss, M):
     # mean of average of valid pixels of an image
-
     # avoid division by 0 (if M = sum(mask) = 0: image_loss = 0)
     valid = M.nonzero()
-
     image_loss[valid] = image_loss[valid] / M[valid]
-
     return torch.mean(image_loss)
 
-
 def mse_loss(prediction, target, mask, reduction=reduction_batch_based):
-
     M = torch.sum(mask, (1, 2))
     res = prediction - target
     image_loss = torch.sum(mask * res * res, (1, 2))
-
     return reduction(image_loss, 2 * M)
 
-
 def gradient_loss(prediction, target, mask, reduction=reduction_batch_based):
-
     M = torch.sum(mask, (1, 2))
-
     diff = prediction - target
     diff = torch.mul(mask, diff)
-
     grad_x = torch.abs(diff[:, :, 1:] - diff[:, :, :-1])
     mask_x = torch.mul(mask[:, :, 1:], mask[:, :, :-1])
     grad_x = torch.mul(mask_x, grad_x)
-
     grad_y = torch.abs(diff[:, 1:, :] - diff[:, :-1, :])
     mask_y = torch.mul(mask[:, 1:, :], mask[:, :-1, :])
     grad_y = torch.mul(mask_y, grad_y)
-
     image_loss = torch.sum(grad_x, (1, 2)) + torch.sum(grad_y, (1, 2))
-
     return reduction(image_loss, M)
 
+def weightedL1_ce_loss(prediction, target, weights):
+    pred_mask = torch.argmax(prediction, dim=1)
+    error = torch.abs(pred_mask-target).float()
+    for i in range(len(weights)):
+        error[target==i] = error[target==i]*weights[i]
+    res = torch.tensor([torch.mean(e) for e in error])
+    res = torch.mean(res)
+    return res
+
+class L1_CE_Loss(nn.Module):
+    def __init__(self, weights):
+        super().__init__()
+        self.ce = nn.CrossEntropyLoss()
+        self.weights = weights
+
+    def forward(self, prediction, target):
+        """
+        prediction: b,#C,H,W
+        target: b,H,W
+        """
+        return self.ce(prediction, target) + \
+               weightedL1_ce_loss(prediction, target, self.weights)
 
 class MSELoss(nn.Module):
     def __init__(self, reduction='batch-based'):
