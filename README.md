@@ -30,7 +30,7 @@ and size of objects of interests, and their physical properties
 humans and will give qualitative comparison across other
 methods.
 
-## :rocket: New! Web demo
+## :zap: New! Web demo
 
 You can check the webdemo hosted on Hugging Face and powered by Gradio, [here](https://huggingface.co/spaces/ybelkada/FocusOnDepth).
 
