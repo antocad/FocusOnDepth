@@ -14,7 +14,7 @@
         "loss_segmentation":"ce",
         "momentum":0.9,
         "epochs":20,
-        "batch_size":32,
+        "batch_size":8,
         "path_model":"models",
         "path_predicted_images":"output",
         "seed":42,
