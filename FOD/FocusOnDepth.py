@@ -37,24 +37,24 @@ class FocusOnDepth(nn.Module):
         """
         super().__init__()
 
-        # Splitting img into patches
-        channels, image_height, image_width = image_size
-        assert image_height % patch_size == 0 and image_width % patch_size == 0, 'Image dimensions must be divisible by the patch size.'
-        num_patches = (image_height // patch_size) * (image_width // patch_size)
-        patch_dim = channels * patch_size * patch_size
-        self.to_patch_embedding = nn.Sequential(
-            Rearrange('b c (h p1) (w p2) -> b (h w) (p1 p2 c)', p1=patch_size, p2=patch_size),
-            nn.Linear(patch_dim, emb_dim),
-        )
-        # Embedding
-        self.cls_token = nn.Parameter(torch.randn(1, 1, emb_dim))
-        self.pos_embedding = nn.Parameter(torch.randn(1, num_patches + 1, emb_dim))
+        # # Splitting img into patches
+        # channels, image_height, image_width = image_size
+        # assert image_height % patch_size == 0 and image_width % patch_size == 0, 'Image dimensions must be divisible by the patch size.'
+        # num_patches = (image_height // patch_size) * (image_width // patch_size)
+        # patch_dim = channels * patch_size * patch_size
+        # self.to_patch_embedding = nn.Sequential(
+        #     Rearrange('b c (h p1) (w p2) -> b (h w) (p1 p2 c)', p1=patch_size, p2=patch_size),
+        #     nn.Linear(patch_dim, emb_dim),
+        # )
+        # # Embedding
+        # self.cls_token = nn.Parameter(torch.randn(1, 1, emb_dim))
+        # self.pos_embedding = nn.Parameter(torch.randn(1, num_patches + 1, emb_dim))
 
-        # Transformer
-        encoder_layer = nn.TransformerEncoderLayer(d_model=emb_dim, nhead=num_heads, dropout=transformer_dropout, dim_feedforward=emb_dim*4)
-        self.transformer_encoders = nn.TransformerEncoder(encoder_layer, num_layers=num_layers_encoder)
+        # # Transformer
+        # encoder_layer = nn.TransformerEncoderLayer(d_model=emb_dim, nhead=num_heads, dropout=transformer_dropout, dim_feedforward=emb_dim*4)
+        # self.transformer_encoders = nn.TransformerEncoder(encoder_layer, num_layers=num_layers_encoder)
         
-        # self.transformer_encoders = timm.create_model(model_timm, pretrained=True)
+        self.transformer_encoders = timm.create_model(model_timm, pretrained=True)
         self.type_ = type
 
         # Register hooks
@@ -82,15 +82,36 @@ class FocusOnDepth(nn.Module):
             self.head_depth = None
             self.head_segmentation = HeadSeg(resample_dim, nclasses=nclasses)
 
+    def transformer_forward(self, model, patches):
+        x = model._pos_embed(patches)
+        if model.grad_checkpointing and not torch.jit.is_scripting():
+            x = timm.models.helper.checkpoint_seq(model.blocks, x)
+        else:
+            x = model.blocks(x)
+        x = model.norm(x)
+        
+        if model.global_pool:
+            x = x[:, model.num_prefix_tokens:].mean(dim=1) if model.global_pool == 'avg' else x[:, 0]
+        x = model.fc_norm(x)
+        
+        return model.head(x)
+    
     def forward(self, img):
-        x = self.to_patch_embedding(img)
-        b, n, _ = x.shape
-        cls_tokens = repeat(self.cls_token, '() n d -> b n d', b = b)
-        x = torch.cat((cls_tokens, x), dim=1)
-        x += self.pos_embedding[:, :(n + 1)]
-        t = self.transformer_encoders(x)
+        # Pre-processing images
+        # x = self.to_patch_embedding(img)
+        # b, n, _ = x.shape
+        # cls_tokens = repeat(self.cls_token, '() n d -> b n d', b = b)
+        # x = torch.cat((cls_tokens, x), dim=1)
+        # x += self.pos_embedding[:, :(n + 1)]
+        # t = self.transformer_encoders(x)
 
+        # Feed pre-processed images to transformer
         # t = self.transformer_encoders(img)
+        
+        model = self.transformer_encoders
+        x = model.patch_emb(img)
+        t = self.transformer_forward(model, x)
+        
         previous_stage = None
         for i in np.arange(len(self.fusions)-1, -1, -1):
             hook_to_take = 't'+str(self.hooks[i])
@@ -112,5 +133,5 @@ class FocusOnDepth(nn.Module):
                 self.activation[name] = output
             return hook
         for h in hooks:
-            self.transformer_encoders.layers[h].register_forward_hook(get_activation('t'+str(h)))
-            # self.transformer_encoders.blocks[h].register_forward_hook(get_activation('t'+str(h)))
+            # self.transformer_encoders.layers[h].register_forward_hook(get_activation('t'+str(h)))
+            self.transformer_encoders.blocks[h].register_forward_hook(get_activation('t'+str(h)))
