@@ -54,8 +54,7 @@ class FocusOnDepth(nn.Module):
         # encoder_layer = nn.TransformerEncoderLayer(d_model=emb_dim, nhead=num_heads, dropout=transformer_dropout, dim_feedforward=emb_dim*4)
         # self.transformer_encoders = nn.TransformerEncoder(encoder_layer, num_layers=num_layers_encoder)
         
-        # self.transformer_encoders = timm.create_model(model_timm, pretrained=True)
-        self.transformer_encoders = timm.models.VisionTransformer()
+        self.transformer_encoders = timm.create_model(model_timm, pretrained=True)
         self.type_ = type
 
         # Register hooks
@@ -92,7 +91,10 @@ class FocusOnDepth(nn.Module):
             x = model.blocks(x)
         x = model.norm(x)
         
-        return model.forward_head(x)
+        if self.global_pool:
+            x = x[:, self.num_prefix_tokens:].mean(dim=1) if self.global_pool == 'avg' else x[:, 0]
+        x = self.fc_norm(x)
+        return self.head(x)
     
     def forward(self, img):
         # Pre-processing images
