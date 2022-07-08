@@ -91,10 +91,7 @@ class FocusOnDepth(nn.Module):
             x = model.blocks(x)
         x = model.norm(x)
         
-        if model.global_pool:
-            x = x[:, model.num_prefix_tokens:].mean(dim=1) if model.global_pool == 'avg' else x[:, 0]
-        x = model.fc_norm(x)
-        return model.head(x)
+        return model.forward_head(x)
     
     def forward(self, img):
         # Pre-processing images
