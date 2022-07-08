@@ -109,7 +109,7 @@ class FocusOnDepth(nn.Module):
         # t = self.transformer_encoders(img)
         
         model = self.transformer_encoders
-        x = model.patch_emb(img)
+        x = model.patch_embed(img)
         t = self.transformer_forward(model, x)
         
         previous_stage = None
