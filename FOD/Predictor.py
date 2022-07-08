@@ -26,6 +26,7 @@ class Predictor(object):
                     image_size  =   (3,resize,resize),
                     emb_dim     =   config['General']['emb_dim'],
                     resample_dim=   config['General']['resample_dim'],
+                    num_heads   =   config['General']['num_heads'],
                     read        =   config['General']['read'],
                     nclasses    =   len(config['Dataset']['classes']) + 1,
                     hooks       =   config['General']['hooks'],
