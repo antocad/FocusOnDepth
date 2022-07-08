@@ -5,7 +5,6 @@
         "model_timm":"vit_base_patch16_384",
         "emb_dim":768,
         "hooks":[2, 5, 8, 11],
-        "num_heads":8,
         "read":"projection",
         "resample_dim":256,
         "optim":"adam",
