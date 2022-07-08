@@ -57,12 +57,12 @@ class FocusOnDepth(nn.Module):
         # self.transformer_encoders = timm.create_model(model_timm, pretrained=True)
         self.type_ = type
 
-        #Register hooks
+        # Register hooks
         self.activation = {}
         self.hooks = hooks
         self._get_layers_from_hooks(self.hooks)
 
-        #Reassembles Fusion
+        # Reassembles Fusion
         self.reassembles = []
         self.fusions = []
         for s in reassemble_s:
@@ -71,7 +71,7 @@ class FocusOnDepth(nn.Module):
         self.reassembles = nn.ModuleList(self.reassembles)
         self.fusions = nn.ModuleList(self.fusions)
 
-        #Head
+        # Head
         if type == "full":
             self.head_depth = HeadDepth(resample_dim)
             self.head_segmentation = HeadSeg(resample_dim, nclasses=nclasses)
