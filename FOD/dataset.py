@@ -40,6 +40,10 @@ class AutoFocusDataset(Dataset):
         path_depths = os.path.join(config['Dataset']['paths']['path_dataset'], dataset_name, config['Dataset']['paths']['path_depths'])
         path_segmentations = os.path.join(config['Dataset']['paths']['path_dataset'], dataset_name, config['Dataset']['paths']['path_segmentations'])
 
+        print("Image path: ", path_images)
+        print("Depth path: ", path_depths)
+        print("Segmentation path: ", path_segmentations)
+        
         self.paths_images = get_total_paths(path_images, config['Dataset']['extensions']['ext_images'])
         self.paths_depths = get_total_paths(path_depths, config['Dataset']['extensions']['ext_depths'])
         self.paths_segmentations = get_total_paths(path_segmentations, config['Dataset']['extensions']['ext_segmentations'])
