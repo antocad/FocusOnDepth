@@ -24,7 +24,7 @@
     "Dataset":{
         "paths":{
             "path_dataset":"/kaggle/input",
-            "list_datasets":["synthia-rand-cityscape"],
+            "list_datasets":["synthiarandcityscape"],
             "path_images":"RGB/RGB",
             "path_segmentations":"Synthia-gt/GT/LABELS",
             "path_depths":"Depth/Depth/Depth"
