@@ -24,10 +24,10 @@
     "Dataset":{
         "paths":{
             "path_dataset":"/kaggle/input",
-            "list_datasets":["inria-fod", "nyuv2-fod/nyuv2", "posetrack-fod"],
-            "path_images":"images",
-            "path_segmentations":"segmentations",
-            "path_depths":"depths"
+            "list_datasets":["synthia-rand-cityscape"],
+            "path_images":"RGB/RGB",
+            "path_segmentations":"Synthia-gt/GT/LABELS",
+            "path_depths":"Depth/Depth/Depth"
         },
         "extensions":{
             "ext_images":".jpg",
